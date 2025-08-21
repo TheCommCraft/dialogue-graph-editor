@@ -68,10 +68,7 @@ fun uploadFiles(acceptedFileTypes: String, callback: (String) -> Unit) {
         element.files?.iterator()?.forEach { file ->
             val fileReader = FileReader()
             fileReader.loadEvent.addHandler { _ ->
-                when (fileReader.result) {
-                    is String -> callback(fileReader.result as String)
-                    else -> console.log(fileReader.result)
-                }
+                callback(fileReader.result as String)
             }
             fileReader.readAsText(file)
         }
