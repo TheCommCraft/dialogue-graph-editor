@@ -24,6 +24,7 @@ import web.html.*
 import web.pointer.CLICK
 import web.pointer.POINTER_MOVE
 import web.pointer.PointerEvent
+import web.prompts.confirm
 import web.storage.localStorage
 import web.timers.*
 
@@ -272,6 +273,24 @@ object GraphEditor {
     }
 
     fun init() {
+        var keyIdx = 0
+        while (localStorage.key(keyIdx) != null) {
+            val previousSessionId = localStorage.key(keyIdx)
+            if (previousSessionId != null && previousSessionId.startsWith("dgetool-session-")) {
+                localStorage.getItem(previousSessionId)?.let { previousSession ->
+                    localStorage.removeItem(previousSessionId)
+                    val restore = confirm("There was a previous session found. Restore it?")
+                    if (restore) {
+                        graphDataEncoded = atob(previousSession)
+                    } else {
+                        localStorage.setItem("deleted-$previousSessionId", previousSession)
+                    }
+                }
+                break
+            }
+            keyIdx += 1
+        }
+
         document.querySelectorAll(".draggable-box").asDynamic().forEach { node ->
             (node as? HTMLDivElement)?.attachBoxHandlers()
         }
@@ -312,7 +331,8 @@ object GraphEditor {
 //                graphDataEncoded = it
 //            }
 //        })
-        val sessionId = "session-"+crypto.randomUUID()
+        val sessionId = "dgetool-session-"+crypto.randomUUID()
+        localStorage.setItem(sessionId, btoa(graphDataEncoded))
         saveInterval = setInterval({
             localStorage.setItem(sessionId, btoa(graphDataEncoded))
         }, 10000)
