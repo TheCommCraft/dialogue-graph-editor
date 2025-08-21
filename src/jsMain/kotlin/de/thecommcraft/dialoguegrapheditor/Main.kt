@@ -151,7 +151,7 @@ object GraphEditor {
             val prevPosY = node.style.top.pixels + BOX_HEIGHT / 2.0
             mouseEvent?.let { me ->
                 val newPath = document.createElementNS("http://www.w3.org/2000/svg", "path") as SVGPathElement
-                newPath.setAttribute("d", pathData(prevPosX, prevPosY, me.pageX.toDouble(), me.pageY.toDouble(), 0.0, 0.0))
+                newPath.setAttribute("d", pathData(prevPosX, prevPosY, me.pageX, me.pageY, 0.0, 0.0))
                 outSvg.appendChild(newPath)
             }
         }
@@ -166,7 +166,7 @@ object GraphEditor {
                         if ((e.unsafeCast<MouseEvent>()).button != MouseButton.AUXILIARY) e.stopPropagation()
                     }
                 }
-                style = "left:${(atX - BOX_WIDTH / 2.0).pixels};top:${(atY - BOX_HEIGHT / 2.0).pixels};"
+                style = "left:${atX.pixels};top:${atY.pixels};"
             }
             divElm.unsafeCast<HTMLDivElement>().attachBoxHandlers()
         }[0] as HTMLDivElement
@@ -239,7 +239,7 @@ object GraphEditor {
             document.querySelectorAll(".draggable-box").asDynamic().forEach { node ->
                 node.remove()
             }
-            connections.removeAll { (a, b, c) ->
+            connections.removeAll { (_, _, c) ->
                 c.remove()
                 true
             }
@@ -254,10 +254,10 @@ object GraphEditor {
 
     fun addGraphData(data: GraphData) {
         val htmlDivNodes = data.nodes.map { node ->
-            val htmlDivNode = document.body?.myBox(node.posX, node.posY)
-            (htmlDivNode?.querySelector("textarea") as? HTMLTextAreaElement)?.value = node.text
+            val htmlDivNode = document.body.myBox(node.posX, node.posY)
+            (htmlDivNode.querySelector("textarea") as? HTMLTextAreaElement)?.value = node.text
             htmlDivNode
-        }.filterNotNull()
+        }
         data.edges.forEach { edge ->
             val startNode = htmlDivNodes[edge.first.index]
             val target = htmlDivNodes[edge.second.index]
