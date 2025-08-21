@@ -13,8 +13,6 @@ import org.w3c.dom.HTMLElement as HTMLElementB
 import kotlinx.html.js.onMouseDownFunction
 import kotlinx.html.js.input
 import kotlinx.html.dom.append
-import kotlinx.html.js.onChangeFunction
-import org.w3c.dom.url.URL
 import web.blob.Blob
 //import org.w3c.dom.events.KeyboardEvent
 //import org.w3c.dom.clipboard.ClipboardEvent
@@ -22,14 +20,11 @@ import web.blob.Blob
 import kotlin.math.abs
 import web.mouse.*
 import web.crypto.crypto
-import web.dom.TagName
 import web.dom.document
 import web.encoding.*
 import web.events.*
 import web.file.FileReader
 import web.file.loadEvent
-import web.fs.OpenFilePickerOptions
-import web.fs.showOpenFilePickerAsync
 import web.svg.*
 import web.html.*
 import web.keyboard.KEY_DOWN
@@ -71,8 +66,8 @@ fun uploadFiles(acceptedFileTypes: String, callback: (String) -> Unit) {
     element.changeEvent.addHandler { event ->
         event.asDynamic().files.forEach { file ->
             val fileReader = FileReader()
-            fileReader.loadEvent.addHandler { loadEvent ->
-                callback(loadEvent.asDynamic().result as String)
+            fileReader.loadEvent.addHandler { _ ->
+                callback(fileReader.result as String)
             }
             fileReader.readAsText(file as Blob)
         }
