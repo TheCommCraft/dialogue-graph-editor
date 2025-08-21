@@ -1,8 +1,11 @@
 package de.thecommcraft.dialoguegrapheditor
+import js.array.JsArray
 import js.array.asList
+import js.uri.encodeURIComponent
 //import kotlinx.browser.window
 //import kotlinx.browser.localStorage
 import kotlinx.html.*
+import kotlinx.html.InputType
 //import org.w3c.dom.
 //import org.w3c.dom.events.MouseEvent
 //import org.w3c.dom.svg.*
@@ -10,17 +13,27 @@ import org.w3c.dom.HTMLElement as HTMLElementB
 import kotlinx.html.js.onMouseDownFunction
 import kotlinx.html.js.input
 import kotlinx.html.dom.append
+import kotlinx.html.js.onChangeFunction
+import org.w3c.dom.url.URL
+import web.blob.Blob
+//import org.w3c.dom.events.KeyboardEvent
 //import org.w3c.dom.clipboard.ClipboardEvent
 //import org.w3c.dom.events.KeyboardEvent
 import kotlin.math.abs
 import web.mouse.*
 import web.crypto.crypto
+import web.dom.TagName
 import web.dom.document
-import web.events.Event
-import web.events.addEventListener
 import web.encoding.*
+import web.events.*
+import web.file.FileReader
+import web.file.loadEvent
+import web.fs.OpenFilePickerOptions
+import web.fs.showOpenFilePickerAsync
 import web.svg.*
 import web.html.*
+import web.keyboard.KEY_DOWN
+import web.keyboard.KeyboardEvent
 import web.pointer.CLICK
 import web.pointer.POINTER_MOVE
 import web.pointer.PointerEvent
@@ -32,6 +45,41 @@ fun HTMLElement.append(builder: TagConsumer<HTMLElementB>.() -> Unit): List<HTML
 //    val shadowHost = document.querySelector("#transfer-shadow-host")
     val elmB = this.unsafeCast<HTMLElementB>()
     return elmB.append { builder() }.unsafeCast<List<HTMLElement>>()
+}
+
+fun download(filename: String, text: String) {
+    val element = document.createElement("a")
+    element.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURIComponent(text))
+    element.setAttribute("download", filename)
+
+    element.style.display = "none"
+    document.body.appendChild(element)
+
+    element.click()
+
+    document.body.removeChild(element)
+}
+
+fun uploadFiles(acceptedFileTypes: String, callback: (String) -> Unit) {
+    val element = document.body.append {
+        input {
+            type = InputType.file
+            accept = acceptedFileTypes
+        }.style.display = "none"
+    }
+    element as HTMLInputElement
+    element.changeEvent.addHandler { event ->
+        event.asDynamic().files.forEach { file ->
+            val fileReader = FileReader()
+            fileReader.loadEvent.addHandler { loadEvent ->
+                callback(loadEvent.asDynamic().result as String)
+            }
+            fileReader.readAsText(file as Blob)
+        }
+        Unit
+    }
+    element.click()
+    document.body.removeChild(element)
 }
 
 object GraphEditor {
@@ -324,13 +372,24 @@ object GraphEditor {
             if (currentlyConnecting != null) regenSvg()
         })
 
-//        document.addEventListener("keydown", { e ->
-//            val event = e as KeyboardEvent
-//            if (event.key == "c" && event.ctrlKey) {
-//                event.preventDefault()
-//                window.navigator.clipboard.writeText(graphDataEncoded)
-//            }
-//        })
+        document.addEventListener(KeyboardEvent.KEY_DOWN, { event ->
+            if (event.key == "s" && event.ctrlKey) {
+                event.preventDefault()
+                download("$sessionId.dgegraph", graphDataEncoded)
+            }
+            if (event.key == "o" && event.ctrlKey) {
+                event.preventDefault()
+                var cleared = false
+                uploadFiles(".dgegraph") {
+                    if (!cleared) {
+                        cleared = true
+                        graphDataEncoded = it
+                    } else {
+                        addGraphData(GraphData.decode(it))
+                    }
+                }
+            }
+        })
 //        document.addEventListener("paste", { e ->
 //            val event = e as ClipboardEvent
 //            val encodedData = event.clipboardData?.getData("Text")
