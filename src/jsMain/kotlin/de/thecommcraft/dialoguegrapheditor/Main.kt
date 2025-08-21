@@ -62,20 +62,23 @@ fun uploadFiles(acceptedFileTypes: String, callback: (String) -> Unit) {
             type = InputType.file
             accept = acceptedFileTypes
         }.style.display = "none"
-    }
+    }[0]
     element as HTMLInputElement
     element.changeEvent.addHandler { _ ->
         element.files?.iterator()?.forEach { file ->
             val fileReader = FileReader()
             fileReader.loadEvent.addHandler { _ ->
-                callback(fileReader.result as String)
+                when (fileReader.result) {
+                    is String -> callback(fileReader.result as String)
+                    else -> console.log(fileReader.result)
+                }
             }
-            fileReader.readAsText(file as Blob)
+            fileReader.readAsText(file)
         }
+        document.body.removeChild(element)
         Unit
     }
     element.click()
-    document.body.removeChild(element)
 }
 
 object GraphEditor {
