@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  <head>
+
+  </head>
+  <body>
+    <style>
+      .draggable-box {
+        width: 128px;
+        height: 80px;
+        border-radius: 4px;
+        position: absolute;
+        background-color: lightgreen;
+      }
+      .draggable-box textarea {
+        margin: 4px;
+        width: 112.8px;
+        height: 48px;
+        border-radius: 4px;
+        border-style: solid;
+        border-color: draygray;
+        resize: none;
+      }
+      .connection-label {
+        width: 80px;
+        position: absolute;
+        border-radius: 0;
+        border-style: solid;
+        border-color: draygray;
+      }
+      svg {
+        top: 0px;
+        left: 0px;
+        position: absolute;
+        fill: none;
+        stroke: black;
+        stroke-width: 2px;
+      }
+      body {
+        margin: none;
+      }
+    </style>
+    <svg width="10000" height="10000" id="out-svg" xmlns="http://www.w3.org/2000/svg">
+    </svg>
+    <script src="./dialogue-graph-editor.js"></script>
+  </body>
+</html>
