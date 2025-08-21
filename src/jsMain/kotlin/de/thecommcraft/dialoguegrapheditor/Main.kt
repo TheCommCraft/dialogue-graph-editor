@@ -341,10 +341,6 @@ object GraphEditor {
             keyIdx += 1
         }
 
-        document.querySelectorAll(".draggable-box").asDynamic().forEach { node ->
-            (node as? HTMLDivElement)?.attachBoxHandlers()
-        }
-
         document.addEventListener(MouseEvent.MOUSE_UP, {
             currentlyClicked = null
             currentlyConnecting = null
