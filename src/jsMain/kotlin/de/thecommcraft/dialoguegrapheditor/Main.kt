@@ -1,6 +1,7 @@
 package de.thecommcraft.dialoguegrapheditor
 import js.array.JsArray
 import js.array.asList
+import js.iterable.iterator
 import js.uri.encodeURIComponent
 //import kotlinx.browser.window
 //import kotlinx.browser.localStorage
@@ -63,8 +64,8 @@ fun uploadFiles(acceptedFileTypes: String, callback: (String) -> Unit) {
         }.style.display = "none"
     }
     element as HTMLInputElement
-    element.changeEvent.addHandler { event ->
-        event.asDynamic().files.forEach { file ->
+    element.changeEvent.addHandler { _ ->
+        element.files?.iterator()?.forEach { file ->
             val fileReader = FileReader()
             fileReader.loadEvent.addHandler { _ ->
                 callback(fileReader.result as String)
