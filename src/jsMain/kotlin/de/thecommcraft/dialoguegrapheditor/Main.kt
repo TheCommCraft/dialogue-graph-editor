@@ -19,6 +19,7 @@ import web.blob.Blob
 //import org.w3c.dom.clipboard.ClipboardEvent
 //import org.w3c.dom.events.KeyboardEvent
 import kotlin.math.abs
+import kotlin.math.exp
 import web.mouse.*
 import web.crypto.crypto
 import web.dom.document
@@ -36,6 +37,7 @@ import web.pointer.PointerEvent
 import web.prompts.confirm
 import web.storage.localStorage
 import web.timers.*
+import kotlin.math.sign
 
 fun HTMLElement.append(builder: TagConsumer<HTMLElementB>.() -> Unit): List<HTMLElement> {
 //    val shadowHost = document.querySelector("#transfer-shadow-host")
@@ -78,6 +80,10 @@ fun uploadFiles(acceptedFileTypes: String, callback: (String) -> Unit) {
     element.click()
 }
 
+fun sigmoid(x: Double): Double {
+    return 1 / (1 + exp(-x))
+}
+
 object GraphEditor {
     private const val BOX_WIDTH = 128.0
     private const val BOX_HEIGHT = 80.0
@@ -118,13 +124,16 @@ object GraphEditor {
         if (abs(posX - prevPosX) - (BOX_WIDTH + secWidth) / 2.0 <
             abs(posY - prevPosY) - (BOX_HEIGHT + secHeight) / 2.0
         ) {
+            val m = (posX_ - prevPosX_) / (posY_ - prevPosY_)
             if (posY > prevPosY) {
                 dir = 1
                 posY -= secHeight / 2.0
                 prevPosY += BOX_HEIGHT / 2.0
+                posX -= (sigmoid(abs(m) * 2) - 0.5) * sign(m) * secWidth
             } else {
                 posY += secHeight / 2.0
                 prevPosY -= BOX_HEIGHT / 2.0
+                posX += (sigmoid(abs(m) * 2) - 0.5) * sign(m) * secWidth
             }
             return """
                 M $prevPosX $prevPosY
@@ -136,13 +145,16 @@ object GraphEditor {
             """.trimIndent()
         }
 
+        val m = (posY_ - prevPosY_) / (posX_ - prevPosX_)
         if (posX > prevPosX) {
             dir = 1
             posX -= secWidth / 2.0
             prevPosX += BOX_WIDTH / 2.0
+            posY -= (sigmoid(abs(m) * 2) - 0.5) * sign(m) * secHeight
         } else {
             posX += secWidth / 2.0
             prevPosX -= BOX_WIDTH / 2.0
+            posY += (sigmoid(abs(m) * 2) - 0.5) * sign(m) * secHeight
         }
 
         return """
@@ -156,23 +168,13 @@ object GraphEditor {
     }
 
     private fun positionConnInput(nodeA: HTMLDivElement, nodeB: HTMLDivElement, connInput: HTMLInputElement) {
-        var prevPosX = nodeA.style.left.pixels + BOX_WIDTH / 2.0
-        var prevPosY = nodeA.style.top.pixels + BOX_HEIGHT / 2.0
+        val prevPosX = nodeA.style.left.pixels + BOX_WIDTH / 2.0
+        val prevPosY = nodeA.style.top.pixels + BOX_HEIGHT / 2.0
         val posX = nodeB.style.left.pixels + BOX_WIDTH / 2.0
         val posY = nodeB.style.top.pixels + BOX_HEIGHT / 2.0
 
-        if (abs(posX - prevPosX) - BOX_WIDTH < abs(posY - prevPosY) - BOX_HEIGHT) {
-            if (posX <= prevPosX) prevPosX -= OPTION_INPUT_WIDTH
-            prevPosY += if (posY > prevPosY) BOX_HEIGHT / 2.0 + OPTION_INPUT_DISTANCE
-            else -(BOX_HEIGHT / 2.0 + OPTION_INPUT_DISTANCE + OPTION_INPUT_HEIGHT)
-        } else {
-            if (posY <= prevPosY) prevPosY -= OPTION_INPUT_HEIGHT
-            prevPosX += if (posX > prevPosX) BOX_WIDTH / 2.0 + OPTION_INPUT_DISTANCE
-            else -(BOX_WIDTH / 2.0 + OPTION_INPUT_DISTANCE + OPTION_INPUT_WIDTH)
-        }
-
-        connInput.style.left = prevPosX.pixels
-        connInput.style.top = prevPosY.pixels
+        connInput.style.left = ((prevPosX + posX - OPTION_INPUT_WIDTH) / 2.0).pixels
+        connInput.style.top = ((prevPosY + posY - OPTION_INPUT_HEIGHT) / 2.0).pixels
     }
 
     private fun regenSvg() {
