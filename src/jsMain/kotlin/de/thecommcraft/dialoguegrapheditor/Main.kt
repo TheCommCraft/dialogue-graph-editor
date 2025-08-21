@@ -51,6 +51,7 @@ object GraphEditor {
     private var currentlyConnecting: HTMLDivElement? = null
     private var mouseEvent: MouseEvent? = null
     private var saveInterval: Interval? = null
+    private var sessionId: String = ""
 
     private fun pathData(
         prevPosX_: Double,
@@ -252,6 +253,11 @@ object GraphEditor {
             graphData = GraphData.decode(value)
         }
 
+    fun saveData() {
+        if (sessionId == "") sessionId = "dgetool-session-"+crypto.randomUUID()
+        localStorage.setItem(sessionId, btoa(graphDataEncoded))
+    }
+
     fun addGraphData(data: GraphData) {
         val htmlDivNodes = data.nodes.map { node ->
             val htmlDivNode = document.body.myBox(node.posX, node.posY)
@@ -299,6 +305,7 @@ object GraphEditor {
             currentlyClicked = null
             currentlyConnecting = null
             regenSvg()
+            saveData()
         })
 
         document.addEventListener(PointerEvent.CLICK, { event ->
@@ -331,11 +338,8 @@ object GraphEditor {
 //                graphDataEncoded = it
 //            }
 //        })
-        val sessionId = "dgetool-session-"+crypto.randomUUID()
-        localStorage.setItem(sessionId, btoa(graphDataEncoded))
-        saveInterval = setInterval({
-            localStorage.setItem(sessionId, btoa(graphDataEncoded))
-        }, 10000)
+        saveData()
+        saveInterval = setInterval(::saveData, 10000)
     }
 }
 
