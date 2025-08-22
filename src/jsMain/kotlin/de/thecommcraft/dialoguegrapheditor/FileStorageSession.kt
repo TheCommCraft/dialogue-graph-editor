@@ -22,7 +22,10 @@ class FileStorageSession(
     val dataAccessToken: String,
     val manualUpdateToken: String? = null
 ) {
+    private var previousData = ""
     suspend fun write(data: String) {
+        if (data == previousData) return
+        previousData = data
         fetch(serverBaseUrl / "files" / fileTarget, RequestInit(
             method = RequestMethod.PUT,
             body = BodyInit(JSON.stringify(unsafeJso<FileContent> {
