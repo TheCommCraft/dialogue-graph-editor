@@ -57,6 +57,8 @@ class FileStorageSession(
     private fun makeHeaders(): Headers {
         val headers = Headers()
         headers.append("Content-Type", "application/json")
+        headers.append("TestCookie", "CookieValue")
+        headers.append("TestCookie2", "")
         headers.append("Cookie", JSON.stringify(unsafeJso<RawCredentials> {
             data_access_token = dataAccessToken
             manualUpdateToken?.let {
