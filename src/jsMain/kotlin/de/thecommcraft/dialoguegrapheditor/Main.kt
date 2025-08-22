@@ -117,11 +117,10 @@ object GraphEditor {
         }
     }
 
-    private const val BOX_WIDTH = 128.0
+    private const val BOX_WIDTH = 256.0
     private const val BOX_HEIGHT = 80.0
     private const val ARROW_SIDE_LENGTH = 12.0
-    private const val OPTION_INPUT_DISTANCE = 8.0
-    private const val OPTION_INPUT_WIDTH = 87.2
+    private const val OPTION_INPUT_WIDTH = 135.2
     private const val OPTION_INPUT_HEIGHT = 21.2
 
     private val outSvg = document.querySelector("svg#out-svg") as? SVGSVGElement
