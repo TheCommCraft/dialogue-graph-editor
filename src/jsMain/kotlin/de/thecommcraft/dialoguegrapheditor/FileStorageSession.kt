@@ -8,13 +8,15 @@ import web.streams.ReadableStreamReadResult
 import web.streams.read
 import web.url.URL
 
-class FileContent(var content: String)
+external class FileContent {
+    var content: String
+}
 
 
-class RawCredentials(
-    var data_access_token: String,
+external class RawCredentials {
+    var data_access_token: String
     var manual_update_token: String
-)
+}
 
 class FileStorageSession(
     val serverBaseUrl: URL,
@@ -52,15 +54,17 @@ class FileStorageSession(
         ))
     }
 
-    private fun makeHeaders() = Headers(arrayOf(
-        tupleOf("Content-Type", "application/json"),
-        tupleOf("Cookie", JSON.stringify(unsafeJso<RawCredentials> {
+    private fun makeHeaders(): Headers {
+        val headers = Headers()
+        headers.append("Content-Type", "application/json")
+        headers.append("Cookie", JSON.stringify(unsafeJso<RawCredentials> {
             data_access_token = dataAccessToken
             manualUpdateToken?.let {
                 manual_update_token = it
             }
         }))
-    ))
+        return headers
+    }
 }
 
 operator fun URL.div(endPoint: String) = URL(encodeURIComponent(endPoint.slice(0..<endPoint.lastIndex ))+endPoint.last(), this.toString().removeSuffix("/")+"/")
