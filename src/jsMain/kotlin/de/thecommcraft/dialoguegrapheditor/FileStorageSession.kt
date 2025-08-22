@@ -50,7 +50,7 @@ class FileStorageSession(
     suspend fun forcePush() {
         fetch(serverBaseUrl / "save_data/", RequestInit(
             method = RequestMethod.POST,
-            headers = makeHeaders()
+            headers = makeHeaders(),
         ))
     }
 
@@ -65,6 +65,7 @@ class FileStorageSession(
                 manual_update_token = it
             }
         }))
+        console.log(headers)
         return headers
     }
 }
