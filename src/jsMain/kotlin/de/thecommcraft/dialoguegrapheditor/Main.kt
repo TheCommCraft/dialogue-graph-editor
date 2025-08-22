@@ -1,43 +1,43 @@
 package de.thecommcraft.dialoguegrapheditor
-import js.array.JsArray
-import js.array.asList
-import js.iterable.iterator
-import js.uri.encodeURIComponent
 //import kotlinx.browser.window
 //import kotlinx.browser.localStorage
-import kotlinx.html.*
-import kotlinx.html.InputType
 //import org.w3c.dom.
 //import org.w3c.dom.events.MouseEvent
 //import org.w3c.dom.svg.*
-import org.w3c.dom.HTMLElement as HTMLElementB
-import kotlinx.html.js.onMouseDownFunction
-import kotlinx.html.js.input
-import kotlinx.html.dom.append
-import web.blob.Blob
 //import org.w3c.dom.events.KeyboardEvent
 //import org.w3c.dom.clipboard.ClipboardEvent
 //import org.w3c.dom.events.KeyboardEvent
-import kotlin.math.abs
-import kotlin.math.exp
-import web.mouse.*
+import js.array.asList
+import js.iterable.iterator
+import js.uri.encodeURIComponent
+import kotlinx.html.*
+import kotlinx.html.InputType
+import kotlinx.html.dom.append
+import kotlinx.html.js.input
+import kotlinx.html.js.onMouseDownFunction
 import web.crypto.crypto
+import web.dom.blurEvent
 import web.dom.document
+import web.dom.focusEvent
 import web.encoding.*
 import web.events.*
 import web.file.FileReader
 import web.file.loadEvent
-import web.svg.*
 import web.html.*
 import web.keyboard.KEY_DOWN
 import web.keyboard.KeyboardEvent
+import web.mouse.*
 import web.pointer.CLICK
 import web.pointer.POINTER_MOVE
 import web.pointer.PointerEvent
 import web.prompts.confirm
 import web.storage.localStorage
+import web.svg.*
 import web.timers.*
+import kotlin.math.abs
+import kotlin.math.exp
 import kotlin.math.sign
+import org.w3c.dom.HTMLElement as HTMLElementB
 
 fun HTMLElement.append(builder: TagConsumer<HTMLElementB>.() -> Unit): List<HTMLElement> {
 //    val shadowHost = document.querySelector("#transfer-shadow-host")
@@ -84,7 +84,39 @@ fun sigmoid(x: Double): Double {
     return 1 / (1 + exp(-x))
 }
 
+fun<T> MutableList<T>.setContents(list: Collection<T>) {
+    this.clear()
+    this.addAll(list)
+}
+
 object GraphEditor {
+    object VersionManager {
+        private val undos: MutableList<String> = mutableListOf()
+        private val redos: MutableList<String> = mutableListOf()
+        private var savedRedos: MutableList<String>? = null
+        fun pushState(currentState: String) {
+            undos.add(currentState)
+            savedRedos = redos.toMutableList()
+            redos.clear()
+        }
+        fun undo(currentState: String): String? {
+            if (undos.isEmpty()) return null
+            redos.add(currentState)
+            savedRedos = null
+            return undos.removeLast()
+        }
+        fun redo(currentState: String): String? {
+            if (redos.isEmpty()) return null
+            undos.add(currentState)
+            savedRedos = null
+            return redos.removeLast()
+        }
+        fun unpushState() {
+            savedRedos?.let { redos.setContents(it) }
+            undos.removeLast()
+        }
+    }
+
     private const val BOX_WIDTH = 128.0
     private const val BOX_HEIGHT = 80.0
     private const val ARROW_SIDE_LENGTH = 12.0
@@ -102,6 +134,8 @@ object GraphEditor {
     private var mouseEvent: MouseEvent? = null
     private var saveInterval: Interval? = null
     private var sessionId: String = ""
+    private var madeConnectionsChange = false
+    private var previousInputValue = ""
 
     private fun pathData(
         prevPosX_: Double,
@@ -223,6 +257,7 @@ object GraphEditor {
 
         addEventListener(MouseEvent.MOUSE_DOWN, { event ->
             if (event.button == MouseButton.AUXILIARY) {
+                VersionManager.pushState(graphDataEncoded)
                 connections.removeAll {(a, b, c) ->
                     if (a == this || b == this) {
                         c.remove()
@@ -235,7 +270,9 @@ object GraphEditor {
                 regenSvg()
             }
             if (event.button == MouseButton.MAIN) {
+                VersionManager.pushState(graphDataEncoded)
                 event.preventDefault()
+                madeConnectionsChange = false
                 if (event.shiftKey) currentlyConnecting = this else currentlyClicked = this
             }
         })
@@ -244,6 +281,7 @@ object GraphEditor {
             val target = this
             currentlyConnecting?.let { startNode ->
                 if (target != startNode) {
+                    madeConnectionsChange = true
                     val existingIdx = connections.indexOfFirst { it.first == startNode && it.second == target }
                     if (existingIdx != -1) {
                         connections[existingIdx].third.remove()
@@ -259,6 +297,18 @@ object GraphEditor {
                 }
             }
         })
+
+        this.querySelector("textarea")?.let { textAreaElement ->
+            textAreaElement as HTMLTextAreaElement
+            textAreaElement.focusEvent.addHandler { event ->
+                previousInputValue = event.target.value
+                VersionManager.pushState(graphDataEncoded)
+            }
+            textAreaElement.blurEvent.addHandler { event ->
+                if (event.target.value == previousInputValue) VersionManager.unpushState()
+                else saveData()
+            }
+        }
     }
 
     var graphData: GraphData
@@ -344,6 +394,9 @@ object GraphEditor {
         }
 
         document.addEventListener(MouseEvent.MOUSE_UP, {
+            if (currentlyConnecting != null && !madeConnectionsChange) {
+                VersionManager.unpushState()
+            }
             currentlyClicked = null
             currentlyConnecting = null
             regenSvg()
@@ -352,6 +405,7 @@ object GraphEditor {
 
         document.addEventListener(PointerEvent.CLICK, { event ->
             if (event.ctrlKey) {
+                VersionManager.pushState(graphDataEncoded)
                 document.body.myBox(event.pageX, event.pageY)
             }
         })
@@ -382,6 +436,12 @@ object GraphEditor {
                         addGraphData(GraphData.decode(it))
                     }
                 }
+            }
+            if (event.key == "z" && event.ctrlKey) {
+                VersionManager.undo(graphDataEncoded)?.let { graphDataEncoded = it }
+            }
+            if (event.key == "y" && event.ctrlKey) {
+                VersionManager.redo(graphDataEncoded)?.let { graphDataEncoded = it }
             }
         })
 //        document.addEventListener("paste", { e ->
