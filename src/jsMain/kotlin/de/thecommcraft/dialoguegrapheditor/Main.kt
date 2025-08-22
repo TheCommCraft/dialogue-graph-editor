@@ -10,6 +10,8 @@ package de.thecommcraft.dialoguegrapheditor
 import js.array.asList
 import js.iterable.iterator
 import js.uri.encodeURIComponent
+import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers.Unconfined
 import kotlinx.html.*
 import kotlinx.html.InputType
 import kotlinx.html.dom.append
@@ -30,10 +32,16 @@ import web.mouse.*
 import web.pointer.CLICK
 import web.pointer.POINTER_MOVE
 import web.pointer.PointerEvent
+import web.prompts.alert
 import web.prompts.confirm
+import web.prompts.prompt
 import web.storage.localStorage
 import web.svg.*
 import web.timers.*
+import web.url.URL
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.coroutines.coroutineContext
 import kotlin.math.abs
 import kotlin.math.exp
 import kotlin.math.sign
@@ -128,6 +136,8 @@ object GraphEditor {
 
     private val connections = mutableListOf<Triple<HTMLDivElement, HTMLDivElement, HTMLInputElement>>()
 
+    private val myCoroutineScope = CoroutineScope(EmptyCoroutineContext)
+
     private var currentlyClicked: HTMLDivElement? = null
     private var currentlyConnecting: HTMLDivElement? = null
     private var mouseEvent: MouseEvent? = null
@@ -135,6 +145,7 @@ object GraphEditor {
     private var sessionId: String = ""
     private var madeConnectionsChange = false
     private var previousInputValue = ""
+    private var fileStorageSession: FileStorageSession? = null
 
     private fun pathData(
         prevPosX_: Double,
@@ -351,6 +362,11 @@ object GraphEditor {
     fun saveData() {
         if (sessionId == "") sessionId = "dgetool-session-"+crypto.randomUUID()
         localStorage.setItem(sessionId, btoa(graphDataEncoded))
+        fileStorageSession?.let {
+            myCoroutineScope.launch {
+                it.write(graphDataEncoded)
+            }
+        }
     }
 
     fun addGraphData(data: GraphData) {
@@ -452,6 +468,19 @@ object GraphEditor {
 //        })
         saveData()
         saveInterval = setInterval(::saveData, 10000)
+
+        val serverBaseURL = Cookies["server_base_url"]
+        val dataAccessToken = Cookies["data_access_token"]
+        val manualUpdateToken = Cookies["manual_update_token"]
+
+        if (serverBaseURL != null && dataAccessToken != null) {
+            fileStorageSession = FileStorageSession(
+                URL(serverBaseURL),
+                sessionId,
+                dataAccessToken,
+                manualUpdateToken
+            )
+        }
     }
 }
 
