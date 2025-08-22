@@ -454,9 +454,11 @@ object GraphEditor {
             }
             if (event.key == "z" && event.ctrlKey) {
                 VersionManager.undo(graphDataEncoded)?.let { graphDataEncoded = it }
+                saveData()
             }
             if (event.key == "y" && event.ctrlKey) {
                 VersionManager.redo(graphDataEncoded)?.let { graphDataEncoded = it }
+                saveData()
             }
         })
 //        document.addEventListener("paste", { e ->

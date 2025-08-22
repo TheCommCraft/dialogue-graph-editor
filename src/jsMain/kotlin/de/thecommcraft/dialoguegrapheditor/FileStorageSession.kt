@@ -43,7 +43,7 @@ class FileStorageSession(
     }
 
     suspend fun forcePush() {
-        fetch((serverBaseUrl / "save_data").trailingSlash, RequestInit(
+        fetch(serverBaseUrl / "save_data/", RequestInit(
             method = RequestMethod.POST,
             headers = makeHeaders()
         ))
@@ -60,5 +60,4 @@ class FileStorageSession(
     ))
 }
 
-operator fun URL.div(endPoint: String) = URL(encodeURIComponent((endPoint)), this.toString())
-val URL.trailingSlash: URL get() = URL("$this/")
+operator fun URL.div(endPoint: String) = URL(encodeURIComponent(endPoint.slice(0..<endPoint.lastIndex ))+endPoint.last(), this.toString().removeSuffix("/")+"/")
