@@ -11,7 +11,6 @@ import js.array.asList
 import js.iterable.iterator
 import js.uri.encodeURIComponent
 import kotlinx.coroutines.*
-import kotlinx.coroutines.Dispatchers.Unconfined
 import kotlinx.html.*
 import kotlinx.html.InputType
 import kotlinx.html.dom.append
@@ -32,16 +31,13 @@ import web.mouse.*
 import web.pointer.CLICK
 import web.pointer.POINTER_MOVE
 import web.pointer.PointerEvent
-import web.prompts.alert
 import web.prompts.confirm
 import web.prompts.prompt
 import web.storage.localStorage
 import web.svg.*
 import web.timers.*
 import web.url.URL
-import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
-import kotlin.coroutines.coroutineContext
 import kotlin.math.abs
 import kotlin.math.exp
 import kotlin.math.sign
@@ -142,7 +138,7 @@ object GraphEditor {
     private var currentlyConnecting: HTMLDivElement? = null
     private var mouseEvent: MouseEvent? = null
     private var saveInterval: Interval? = null
-    private var sessionId: String = ""
+    private var sessionIdentifier: String = ""
     private var madeConnectionsChange = false
     private var previousInputValue = ""
     private var fileStorageSession: FileStorageSession? = null
@@ -360,8 +356,8 @@ object GraphEditor {
         }
 
     fun saveData() {
-        if (sessionId == "") sessionId = "dgetool-session-"+crypto.randomUUID()
-        localStorage.setItem(sessionId, btoa(graphDataEncoded))
+        if (sessionIdentifier == "") sessionIdentifier = "dgetool-session-"+crypto.randomUUID()
+        localStorage.setItem(sessionIdentifier, btoa(graphDataEncoded))
         fileStorageSession?.let {
             myCoroutineScope.launch {
                 it.write(graphDataEncoded)
@@ -394,6 +390,18 @@ object GraphEditor {
         while (localStorage.key(keyIdx) != null) {
             val previousSessionId = localStorage.key(keyIdx)
             if (previousSessionId != null && previousSessionId.startsWith("dgetool-session-")) {
+                localStorage.getItem(previousSessionId)?.let { previousSession ->
+                    localStorage.removeItem(previousSessionId)
+                    val restore = confirm("There was a previous session found. Restore it?")
+                    if (restore) {
+                        graphDataEncoded = atob(previousSession)
+                    } else {
+                        localStorage.setItem("deleted-$previousSessionId", previousSession)
+                    }
+                }
+                break
+            }
+            if (previousSessionId != null && previousSessionId.startsWith("dgetool-project-")) {
                 localStorage.getItem(previousSessionId)?.let { previousSession ->
                     localStorage.removeItem(previousSessionId)
                     val restore = confirm("There was a previous session found. Restore it?")
@@ -438,7 +446,7 @@ object GraphEditor {
         document.addEventListener(KeyboardEvent.KEY_DOWN, { event ->
             if (event.key == "s" && event.ctrlKey) {
                 event.preventDefault()
-                download("$sessionId.dgegraph", graphDataEncoded)
+                download("$sessionIdentifier.dgegraph", graphDataEncoded)
             }
             if (event.key == "o" && event.ctrlKey) {
                 event.preventDefault()
@@ -460,6 +468,18 @@ object GraphEditor {
                 VersionManager.redo(graphDataEncoded)?.let { graphDataEncoded = it }
                 saveData()
             }
+            if (event.key == "n" && event.ctrlKey) {
+                val newName = prompt("Enter the new name (or leave blank to not rename).")
+                newName?.let {
+                    if (newName == "") return@let
+                    sessionIdentifier = "dgetool-project-$it"
+                    fileStorageSession?.let { fileStorageSession ->
+                        myCoroutineScope.launch {
+                            fileStorageSession.rename(sessionIdentifier)
+                        }
+                    }
+                }
+            }
         })
 //        document.addEventListener("paste", { e ->
 //            val event = e as ClipboardEvent
@@ -478,7 +498,7 @@ object GraphEditor {
         if (serverBaseURL != null && dataAccessToken != null) {
             fileStorageSession = FileStorageSession(
                 URL(serverBaseURL),
-                sessionId,
+                sessionIdentifier,
                 dataAccessToken,
                 manualUpdateToken
             )

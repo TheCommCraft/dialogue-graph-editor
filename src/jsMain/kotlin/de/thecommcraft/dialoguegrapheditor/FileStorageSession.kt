@@ -21,11 +21,19 @@ external class RawCredentials {
 
 class FileStorageSession(
     val serverBaseUrl: URL,
-    var fileTarget: String,
+    private var fileTarget: String,
     val dataAccessToken: String,
     val manualUpdateToken: String? = null
 ) {
+    val currentFileTarget: String by ::fileTarget
     private var previousData = ""
+
+    suspend fun rename(newFileTarget: String) {
+        val currentData = read()
+        write("")
+        fileTarget = newFileTarget
+        write(currentData)
+    }
     suspend fun write(data: String) {
         if (data == previousData) return
         previousData = data
@@ -38,7 +46,7 @@ class FileStorageSession(
         ))
     }
 
-    suspend fun read(data: String): String {
+    suspend fun read(): String {
         val response = fetch(serverBaseUrl / "files" / fileTarget params makeParams(), RequestInit(
             method = RequestMethod.GET,
             headers = makeHeaders()
