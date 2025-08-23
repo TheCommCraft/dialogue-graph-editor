@@ -71,6 +71,6 @@ class FileStorageSession(
     }
 }
 
-infix fun URL.params(params: String) = URL(params, this)
+infix fun URL.params(params: String) = URL("?$params", this)
 
 operator fun URL.div(endPoint: String) = URL(encodeURIComponent(endPoint.slice(0..<endPoint.lastIndex ))+endPoint.last(), this.toString().removeSuffix("/")+"/")
