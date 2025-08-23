@@ -389,6 +389,7 @@ object GraphEditor {
         val newName = prompt("Enter the new name (or leave blank to not rename).")
         newName?.let {
             if (newName == "") return@let
+            localStorage.removeItem(sessionIdentifier)
             sessionIdentifier = "dgetool-project-$it"
             fileStorageSession?.let { fileStorageSession ->
                 myCoroutineScope.launch {
