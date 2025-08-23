@@ -385,6 +385,19 @@ object GraphEditor {
         regenSvg()
     }
 
+    fun askRename() {
+        val newName = prompt("Enter the new name (or leave blank to not rename).")
+        newName?.let {
+            if (newName == "") return@let
+            sessionIdentifier = "dgetool-project-$it"
+            fileStorageSession?.let { fileStorageSession ->
+                myCoroutineScope.launch {
+                    fileStorageSession.rename(sessionIdentifier)
+                }
+            }
+        }
+    }
+
     fun init() {
         var keyIdx = 0
         while (localStorage.key(keyIdx) != null) {
@@ -470,16 +483,10 @@ object GraphEditor {
                 VersionManager.redo(graphDataEncoded)?.let { graphDataEncoded = it }
                 saveData()
             }
-            if (event.key == "n" && event.ctrlKey) {
-                val newName = prompt("Enter the new name (or leave blank to not rename).")
-                newName?.let {
-                    if (newName == "") return@let
-                    sessionIdentifier = "dgetool-project-$it"
-                    fileStorageSession?.let { fileStorageSession ->
-                        myCoroutineScope.launch {
-                            fileStorageSession.rename(sessionIdentifier)
-                        }
-                    }
+            if (event.key == "c" && event.ctrlKey) {
+                val command = prompt("Enter command")
+                if (command == "rename") {
+                    askRename()
                 }
             }
         })
