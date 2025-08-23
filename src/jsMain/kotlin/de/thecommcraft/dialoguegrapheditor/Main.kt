@@ -388,27 +388,29 @@ object GraphEditor {
     fun init() {
         var keyIdx = 0
         while (localStorage.key(keyIdx) != null) {
-            val previousSessionId = localStorage.key(keyIdx)
-            if (previousSessionId != null && previousSessionId.startsWith("dgetool-session-")) {
-                localStorage.getItem(previousSessionId)?.let { previousSession ->
-                    localStorage.removeItem(previousSessionId)
+            val previousSessionIdentifier = localStorage.key(keyIdx)
+            if (previousSessionIdentifier != null && previousSessionIdentifier.startsWith("dgetool-session-")) {
+                localStorage.getItem(previousSessionIdentifier)?.let { previousSession ->
+                    localStorage.removeItem(previousSessionIdentifier)
                     val restore = confirm("There was a previous session found. Restore it?")
                     if (restore) {
                         graphDataEncoded = atob(previousSession)
+                        sessionIdentifier = previousSessionIdentifier
                     } else {
-                        localStorage.setItem("deleted-$previousSessionId", previousSession)
+                        localStorage.setItem("deleted-$previousSessionIdentifier", previousSession)
                     }
                 }
                 break
             }
-            if (previousSessionId != null && previousSessionId.startsWith("dgetool-project-")) {
-                localStorage.getItem(previousSessionId)?.let { previousSession ->
-                    localStorage.removeItem(previousSessionId)
+            if (previousSessionIdentifier != null && previousSessionIdentifier.startsWith("dgetool-project-")) {
+                localStorage.getItem(previousSessionIdentifier)?.let { previousSession ->
+                    localStorage.removeItem(previousSessionIdentifier)
                     val restore = confirm("There was a previous session found. Restore it?")
                     if (restore) {
                         graphDataEncoded = atob(previousSession)
+                        sessionIdentifier = previousSessionIdentifier
                     } else {
-                        localStorage.setItem("deleted-$previousSessionId", previousSession)
+                        localStorage.setItem("deleted-$previousSessionIdentifier", previousSession)
                     }
                 }
                 break
