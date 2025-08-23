@@ -497,10 +497,6 @@ object GraphEditor {
         val dataAccessToken = Cookies["data_access_token"]
         val manualUpdateToken = Cookies["manual_update_token"]
 
-        console.log(serverBaseURL)
-        console.log(dataAccessToken)
-        console.log(manualUpdateToken)
-
         if (serverBaseURL != null && dataAccessToken != null) {
             fileStorageSession = FileStorageSession(
                 URL(serverBaseURL),
@@ -508,7 +504,6 @@ object GraphEditor {
                 dataAccessToken,
                 manualUpdateToken
             )
-            console.log(fileStorageSession)
         }
     }
 }
