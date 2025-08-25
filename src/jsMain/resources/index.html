@@ -37,11 +37,45 @@
       body {
         margin: none;
       }
+      #overlay-container {
+        z-index: 2;
+        position: fixed;
+        inset: 0;
+        border-radius: 8px;
+        outline-color: lightgray;
+        margin: auto;
+        width: 640px;
+        height: fit-content;
+        max-width: 100vw;
+        max-height: 100dvh;
+        padding: 8px;
+        outline-width: 2px;
+        outline-style: solid;
+        background-color: white;
+      }
+
+      #overlay-container div {
+        outline-width: 2px;
+        outline-color: lightgray;
+        outline-style: solid;
+        border-radius: 4px;
+        padding: 4px;
+      }
+
+      #overlay-container div + div {
+        margin-top: 8px;
+      }
+
     </style>
   </head>
   <body>
-    <svg width="10000" height="10000" id="out-svg" xmlns="http://www.w3.org/2000/svg">
-    </svg>
-    <script src="./dialogue-graph-editor.js"></script>
+    <div id="editor-container">
+      <svg width="10000" height="10000" id="out-svg" xmlns="http://www.w3.org/2000/svg">
+      </svg>
+      <script src="./dialogue-graph-editor.js"></script>
+    </div>
+    <div id="overlay-container">
+
+    </div>
   </body>
 </html>

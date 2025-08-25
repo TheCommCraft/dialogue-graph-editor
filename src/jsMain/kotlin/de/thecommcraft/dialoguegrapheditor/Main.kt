@@ -38,6 +38,7 @@ import web.svg.*
 import web.timers.*
 import web.url.URL
 import js.function.async
+import web.dom.ElementId
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.math.abs
 import kotlin.math.exp
@@ -141,6 +142,8 @@ object GraphEditor {
     private var madeConnectionsChange = false
     private var previousInputValue = ""
     private var fileStorageSession: FileStorageSession? = null
+
+    private val editorDiv = document.getElementById(ElementId("editor-container")) as HTMLDivElement
 
     private fun pathData(
         prevPosX_: Double,
@@ -292,11 +295,19 @@ object GraphEditor {
                         connections[existingIdx].third.remove()
                         connections.removeAt(existingIdx)
                     } else {
-                        document.body.append {
+                        editorDiv.append {
                             val inputNode = input(classes = "connection-label") {
                                 placeholder = "option"
+                            }.unsafeCast<HTMLInputElement>()
+                            inputNode.focusEvent.addHandler { event ->
+                                previousInputValue = event.target.value
+                                VersionManager.pushState(graphDataEncoded)
                             }
-                            connections.add(Triple(startNode, target, inputNode.unsafeCast<HTMLInputElement>()))
+                            inputNode.blurEvent.addHandler { event ->
+                                if (event.target.value == previousInputValue) VersionManager.unpushState()
+                                else saveData()
+                            }
+                            connections.add(Triple(startNode, target, inputNode))
                         }
                     }
                 }
@@ -366,14 +377,14 @@ object GraphEditor {
 
     fun addGraphData(data: GraphData) {
         val htmlDivNodes = data.nodes.map { node ->
-            val htmlDivNode = document.body.myBox(node.posX, node.posY)
+            val htmlDivNode = editorDiv.myBox(node.posX, node.posY)
             (htmlDivNode.querySelector("textarea") as? HTMLTextAreaElement)?.value = node.text
             htmlDivNode
         }
         data.edges.forEach { edge ->
             val startNode = htmlDivNodes[edge.first.index]
             val target = htmlDivNodes[edge.second.index]
-            document.body.append {
+            editorDiv.append {
                 val inputNode = input(classes = "connection-label") {
                     placeholder = "option"
                     value = edge.text
@@ -398,6 +409,22 @@ object GraphEditor {
         }
     }
 
+    fun askOpen() {
+        val openable = mutableListOf<String>()
+        var keyIdx = 0
+        while (localStorage.key(keyIdx) != null) {
+            val previousSessionIdentifier = localStorage.key(keyIdx)
+            if (previousSessionIdentifier != null && previousSessionIdentifier.startsWith("old-dgetool-session-")) {
+                openable.add(previousSessionIdentifier)
+            }
+            if (previousSessionIdentifier != null && previousSessionIdentifier.startsWith("old-dgetool-project-")) {
+                openable.add(previousSessionIdentifier)
+            }
+            keyIdx += 1
+        }
+        val newName = prompt("")
+    }
+
     fun init() {
         var keyIdx = 0
         while (localStorage.key(keyIdx) != null) {
@@ -410,7 +437,7 @@ object GraphEditor {
                         graphDataEncoded = atob(previousSession)
                         sessionIdentifier = previousSessionIdentifier
                     } else {
-                        localStorage.setItem("deleted-$previousSessionIdentifier", previousSession)
+                        localStorage.setItem("old-$previousSessionIdentifier", previousSession)
                     }
                 }
                 break
@@ -423,7 +450,7 @@ object GraphEditor {
                         graphDataEncoded = atob(previousSession)
                         sessionIdentifier = previousSessionIdentifier
                     } else {
-                        localStorage.setItem("deleted-$previousSessionIdentifier", previousSession)
+                        localStorage.setItem("old-$previousSessionIdentifier", previousSession)
                     }
                 }
                 break
@@ -444,7 +471,7 @@ object GraphEditor {
         document.addEventListener(PointerEvent.CLICK, { event ->
             if (event.ctrlKey) {
                 VersionManager.pushState(graphDataEncoded)
-                document.body.myBox(event.pageX, event.pageY)
+                editorDiv.myBox(event.pageX, event.pageY)
             }
         })
 
