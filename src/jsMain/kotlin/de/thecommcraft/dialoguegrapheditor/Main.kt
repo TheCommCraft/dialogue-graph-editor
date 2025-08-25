@@ -7,6 +7,7 @@ package de.thecommcraft.dialoguegrapheditor
 //import org.w3c.dom.events.KeyboardEvent
 //import org.w3c.dom.clipboard.ClipboardEvent
 //import org.w3c.dom.events.KeyboardEvent
+import de.thecommcraft.dialoguegrapheditor.htmldsl.inputElm
 import js.array.asList
 import js.iterable.iterator
 import js.uri.encodeURIComponent
@@ -38,6 +39,7 @@ import web.svg.*
 import web.timers.*
 import web.url.URL
 import js.function.async
+import web.cssom.ClassName
 import web.dom.ElementId
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.math.abs
@@ -261,6 +263,21 @@ object GraphEditor {
         }[0] as HTMLDivElement
     }
 
+    private fun HTMLElement.edgeElement(text: String? = null) =
+        inputElm {
+            classList.add(ClassName("connection-label"))
+            placeholder = "option"
+            text?.let { value = it }
+            focusEvent.addHandler { event ->
+                previousInputValue = event.target.value
+                VersionManager.pushState(graphDataEncoded)
+            }
+            blurEvent.addHandler { event ->
+                if (event.target.value == previousInputValue) VersionManager.unpushState()
+                else saveData()
+            }
+        }
+
     private fun HTMLDivElement.attachBoxHandlers() {
 
         addEventListener(MouseEvent.MOUSE_DOWN, { event ->
@@ -295,20 +312,8 @@ object GraphEditor {
                         connections[existingIdx].third.remove()
                         connections.removeAt(existingIdx)
                     } else {
-                        editorDiv.append {
-                            val inputNode = input(classes = "connection-label") {
-                                placeholder = "option"
-                            }.unsafeCast<HTMLInputElement>()
-                            inputNode.focusEvent.addHandler { event ->
-                                previousInputValue = event.target.value
-                                VersionManager.pushState(graphDataEncoded)
-                            }
-                            inputNode.blurEvent.addHandler { event ->
-                                if (event.target.value == previousInputValue) VersionManager.unpushState()
-                                else saveData()
-                            }
-                            connections.add(Triple(startNode, target, inputNode))
-                        }
+                        val inputNode = editorDiv.edgeElement()
+                        connections.add(Triple(startNode, target, inputNode))
                     }
                 }
             }
@@ -384,13 +389,8 @@ object GraphEditor {
         data.edges.forEach { edge ->
             val startNode = htmlDivNodes[edge.first.index]
             val target = htmlDivNodes[edge.second.index]
-            editorDiv.append {
-                val inputNode = input(classes = "connection-label") {
-                    placeholder = "option"
-                    value = edge.text
-                }
-                connections.add(Triple(startNode, target, inputNode.unsafeCast<HTMLInputElement>()))
-            }
+            val inputNode = editorDiv.edgeElement(edge.text)
+            connections.add(Triple(startNode, target, inputNode.unsafeCast<HTMLInputElement>()))
         }
         regenSvg()
     }
@@ -511,6 +511,7 @@ object GraphEditor {
                 saveData()
             }
             if (event.key == "c" && event.ctrlKey) {
+                if (document.activeElement?.tagName != "BODY") return@addEventListener
                 val command = prompt("Enter command")
                 if (command == "rename") {
                     askRename()
