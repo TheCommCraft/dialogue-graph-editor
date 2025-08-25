@@ -1,5 +1,6 @@
 package de.thecommcraft.dialoguegrapheditor
 
+import js.errors.SyntaxError
 import js.objects.unsafeJso
 import js.uri.encodeURIComponent
 import js.function.async
@@ -225,7 +226,7 @@ class WSFileStorageSession(
         val encodedCommand = JSON.stringify(command)+"\n"
         executingCommands.withLock {
             webSocket.send(encodedCommand)
-            return receiveFiltered { messageType == WSFileStorageSessionMessageType.RESPONSE }
+            return receiveFiltered { messageType == WSFileStorageSessionMessageType.RESPONSE && identifier == command.identifier }
         }
     }
 
@@ -264,10 +265,16 @@ class WSFileStorageSession(
         }
         messageEvent.addHandler { event ->
             val encodedMessage = event.data as String
-            val message = JSON.parse(encodedMessage) as WSFileStorageSessionMessage
-            async { ->
-                dataReception.send(message)
-            }()
+            encodedMessage.lines().forEach {
+                val message = try {
+                    JSON.parse(it) as WSFileStorageSessionMessage
+                } catch (exc: SyntaxError) {
+                    return@forEach
+                }
+                async { ->
+                    dataReception.send(message)
+                }()
+            }
         }
     }
 }
