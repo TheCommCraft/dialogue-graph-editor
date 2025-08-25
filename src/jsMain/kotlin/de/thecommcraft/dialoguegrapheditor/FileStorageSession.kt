@@ -267,7 +267,7 @@ class WSFileStorageSession(
             val encodedMessage = event.data as String
             encodedMessage.lines().forEach {
                 val message = try {
-                    JSON.parse(it) as WSFileStorageSessionMessage
+                    JSON.parse<WSFileStorageSessionMessage>(it)
                 } catch (exc: SyntaxError) {
                     return@forEach
                 }
