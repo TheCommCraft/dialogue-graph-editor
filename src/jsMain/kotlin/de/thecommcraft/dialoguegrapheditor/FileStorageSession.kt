@@ -120,6 +120,7 @@ sealed external interface WSFileStorageSessionCommandType {
 external class WSFileStorageSessionCommand {
     @JsName("command_type")
     var commandType: WSFileStorageSessionCommandType
+    @JsName("file_target")
     var fileTarget: String
     var identifier: String
     var content: String?
