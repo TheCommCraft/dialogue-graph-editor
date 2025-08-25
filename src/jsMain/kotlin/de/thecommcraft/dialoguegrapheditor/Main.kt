@@ -37,6 +37,7 @@ import web.storage.localStorage
 import web.svg.*
 import web.timers.*
 import web.url.URL
+import js.function.async
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.math.abs
 import kotlin.math.exp
@@ -131,8 +132,6 @@ object GraphEditor {
         ?: error("SVG element with id 'out-svg' not found")
 
     private val connections = mutableListOf<Triple<HTMLDivElement, HTMLDivElement, HTMLInputElement>>()
-
-    private val myCoroutineScope = CoroutineScope(EmptyCoroutineContext)
 
     private var currentlyClicked: HTMLDivElement? = null
     private var currentlyConnecting: HTMLDivElement? = null
@@ -359,9 +358,9 @@ object GraphEditor {
         if (sessionIdentifier == "") sessionIdentifier = "dgetool-session-"+crypto.randomUUID()
         localStorage.setItem(sessionIdentifier, btoa(graphDataEncoded))
         fileStorageSession?.let {
-            myCoroutineScope.launch {
+            async { ->
                 it.write(graphDataEncoded)
-            }
+            }()
         }
     }
 
@@ -392,9 +391,9 @@ object GraphEditor {
             localStorage.removeItem(sessionIdentifier)
             sessionIdentifier = "dgetool-project-$it"
             fileStorageSession?.let { fileStorageSession ->
-                myCoroutineScope.launch {
+                async { ->
                     fileStorageSession.rename(sessionIdentifier)
-                }
+                }()
             }
         }
     }
@@ -506,11 +505,17 @@ object GraphEditor {
         val manualUpdateToken = Cookies["manual_update_token"]
 
         if (serverBaseURL != null && dataAccessToken != null) {
-            fileStorageSession = FileStorageSession(
+            val fileStoragePushControlSession = manualUpdateToken?.let {
+                HTTPFileStoragePushControlSession(
+                    URL(serverBaseURL),
+                    it
+                )
+            }
+            fileStorageSession = WSFileStorageSession(
                 URL(serverBaseURL),
                 sessionIdentifier,
                 dataAccessToken,
-                manualUpdateToken
+                fileStoragePushControlSession
             )
         }
     }
