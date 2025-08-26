@@ -463,7 +463,7 @@ object GraphEditor {
             localStorage.getItem(name)?.let {
                 saveData()
                 renameCurrent("old-$sessionIdentifier")
-                graphDataEncoded = it
+                graphDataEncoded = atob(it)
                 sessionIdentifier = name
                 renameCurrent(sessionIdentifier.removePrefix("old-"))
             }
