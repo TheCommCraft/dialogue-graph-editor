@@ -248,7 +248,11 @@ class WSFileStorageSession(
     }
 
     private suspend fun executeBatchedCommands(commands: Sequence<WSFileStorageSessionCommand>): List<WSFileStorageSessionMessage> {
-        val commandList = commands.toList()
+        val commandList = commands.toList().apply {
+            forEach {
+                it.identifier = crypto.randomUUID()
+            }
+        }
         val responseMap = commands.map { it.identifier to unsafeJso<WSFileStorageSessionMessage>() }.toMap().toMutableMap()
         val encodedCommands = commandList.joinToString("\n", transform = JSON::stringify)+"\n"
         executingCommands.withLock {
