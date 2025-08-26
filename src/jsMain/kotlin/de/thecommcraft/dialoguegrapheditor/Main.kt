@@ -559,6 +559,9 @@ object GraphEditor {
                 if (command == "rename") {
                     askRename()
                 }
+                if (command == "open") {
+                    askOpen()
+                }
             }
         })
 //        document.addEventListener("paste", { e ->
