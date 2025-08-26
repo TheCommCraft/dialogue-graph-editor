@@ -7,20 +7,16 @@ package de.thecommcraft.dialoguegrapheditor
 //import org.w3c.dom.events.KeyboardEvent
 //import org.w3c.dom.clipboard.ClipboardEvent
 //import org.w3c.dom.events.KeyboardEvent
-import de.thecommcraft.dialoguegrapheditor.htmldsl.inputElm
+import de.thecommcraft.dialoguegrapheditor.htmldsl.*
 import js.array.asList
 import js.iterable.iterator
 import js.uri.encodeURIComponent
-import kotlinx.coroutines.*
 import kotlinx.html.*
 import kotlinx.html.InputType
 import kotlinx.html.dom.append
 import kotlinx.html.js.input
 import kotlinx.html.js.onMouseDownFunction
 import web.crypto.crypto
-import web.dom.blurEvent
-import web.dom.document
-import web.dom.focusEvent
 import web.encoding.*
 import web.events.*
 import web.file.FileReader
@@ -40,8 +36,7 @@ import web.timers.*
 import web.url.URL
 import js.function.async
 import web.cssom.ClassName
-import web.dom.ElementId
-import kotlin.coroutines.EmptyCoroutineContext
+import web.dom.*
 import kotlin.math.abs
 import kotlin.math.exp
 import kotlin.math.sign
@@ -146,6 +141,7 @@ object GraphEditor {
     private var fileStorageSession: FileStorageSession? = null
 
     private val editorDiv = document.getElementById(ElementId("editor-container")) as HTMLDivElement
+    private val overlayDiv = document.getElementById(ElementId("overlay-container")) as HTMLDivElement
 
     private fun pathData(
         prevPosX_: Double,
@@ -263,9 +259,9 @@ object GraphEditor {
         }[0] as HTMLDivElement
     }
 
-    private fun HTMLElement.edgeElement(text: String? = null) =
-        inputElm {
-            classList.add(ClassName("connection-label"))
+    private fun HTMLElement.edgeElementAdd(text: String? = null) =
+        inputElmAdd {
+            clazz("connection-label")
             placeholder = "option"
             text?.let { value = it }
             focusEvent.addHandler { event ->
@@ -312,7 +308,7 @@ object GraphEditor {
                         connections[existingIdx].third.remove()
                         connections.removeAt(existingIdx)
                     } else {
-                        val inputNode = editorDiv.edgeElement()
+                        val inputNode = editorDiv.edgeElementAdd()
                         connections.add(Triple(startNode, target, inputNode))
                     }
                 }
@@ -389,7 +385,7 @@ object GraphEditor {
         data.edges.forEach { edge ->
             val startNode = htmlDivNodes[edge.first.index]
             val target = htmlDivNodes[edge.second.index]
-            val inputNode = editorDiv.edgeElement(edge.text)
+            val inputNode = editorDiv.edgeElementAdd(edge.text)
             connections.add(Triple(startNode, target, inputNode.unsafeCast<HTMLInputElement>()))
         }
         regenSvg()
@@ -409,6 +405,46 @@ object GraphEditor {
         }
     }
 
+    fun<T> HTMLElement.openOverlayAdd(options: List<T>, clickHandler: (T?) -> Unit) {
+        if (options.isEmpty()) append("Nothing here.")
+        options.forEach { option ->
+            divElmAdd {
+                clazz("open-overlay-option")
+                append(option.toString())
+                clickEvent.addHandler {
+                    val reallyLoad = confirm("Really load $option?")
+                    if (!reallyLoad) return@addHandler
+                    editorDiv.style.filter = "none"
+                    this@openOverlayAdd.run {
+                        style.display = "none"
+                        childNodes.forEach {
+                            it.remove()
+                        }
+                    }
+                    clickHandler(option)
+                }
+            }
+        }
+        brElmAdd {  }
+        buttonElmAdd {
+            clazz("cancel-overlay")
+            clazz("material-icons")
+            append("close")
+            clickEvent.addHandler {
+                editorDiv.style.filter = "none"
+                this@openOverlayAdd.run {
+                    style.display = "none"
+                    childNodes.forEach {
+                        it.remove()
+                    }
+                }
+                clickHandler(null)
+            }
+        }
+        editorDiv.style.filter = "blur(4px)"
+        style.display = "unset"
+    }
+
     fun askOpen() {
         val openable = mutableListOf<String>()
         var keyIdx = 0
@@ -422,7 +458,14 @@ object GraphEditor {
             }
             keyIdx += 1
         }
-        val newName = prompt("")
+        overlayDiv.openOverlayAdd(openable) { name ->
+            if (name == null) return@openOverlayAdd
+            localStorage.getItem(name)?.let {
+                localStorage.setItem(sessionIdentifier, graphDataEncoded)
+                graphDataEncoded = it
+                sessionIdentifier = name
+            }
+        }
     }
 
     fun init() {

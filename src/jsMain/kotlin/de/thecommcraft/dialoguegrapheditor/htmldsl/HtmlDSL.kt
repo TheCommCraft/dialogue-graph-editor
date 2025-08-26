@@ -4,6 +4,7 @@ import web.html.*
 import web.dom.document
 import web.components.HTMLSlotElement
 import web.components.HTMLTemplateElement
+import web.cssom.ClassName
 
 fun aElm(block: HTMLAnchorElement.() -> Unit) = (document.createElement("a") as HTMLAnchorElement).apply(block)
 
@@ -229,224 +230,228 @@ fun wbrElm(block: HTMLElement.() -> Unit) = (document.createElement("wbr")).appl
 
 
 
-fun HTMLElement.aElm(block: HTMLAnchorElement.() -> Unit) = appendChild((document.createElement("a") as HTMLAnchorElement).apply(block))
+fun HTMLElement.aElmAdd(block: HTMLAnchorElement.() -> Unit) = appendChild((document.createElement("a") as HTMLAnchorElement).apply(block))
 
-fun HTMLElement.abbrElm(block: HTMLElement.() -> Unit) = appendChild((document.createElement("abbr")).apply(block))
+fun HTMLElement.abbrElmAdd(block: HTMLElement.() -> Unit) = appendChild((document.createElement("abbr")).apply(block))
 
-fun HTMLElement.addressElm(block: HTMLElement.() -> Unit) = appendChild((document.createElement("address")).apply(block))
+fun HTMLElement.addressElmAdd(block: HTMLElement.() -> Unit) = appendChild((document.createElement("address")).apply(block))
 
-fun HTMLElement.areaElm(block: HTMLAreaElement.() -> Unit) = appendChild((document.createElement("area") as HTMLAreaElement).apply(block))
+fun HTMLElement.areaElmAdd(block: HTMLAreaElement.() -> Unit) = appendChild((document.createElement("area") as HTMLAreaElement).apply(block))
 
-fun HTMLElement.articleElm(block: HTMLElement.() -> Unit) = appendChild((document.createElement("article")).apply(block))
+fun HTMLElement.articleElmAdd(block: HTMLElement.() -> Unit) = appendChild((document.createElement("article")).apply(block))
 
-fun HTMLElement.asideElm(block: HTMLElement.() -> Unit) = appendChild((document.createElement("aside")).apply(block))
+fun HTMLElement.asideElmAdd(block: HTMLElement.() -> Unit) = appendChild((document.createElement("aside")).apply(block))
 
-fun HTMLElement.audioElm(block: HTMLAudioElement.() -> Unit) = appendChild((document.createElement("audio") as HTMLAudioElement).apply(block))
+fun HTMLElement.audioElmAdd(block: HTMLAudioElement.() -> Unit) = appendChild((document.createElement("audio") as HTMLAudioElement).apply(block))
 
-fun HTMLElement.bElm(block: HTMLElement.() -> Unit) = appendChild((document.createElement("b")).apply(block))
+fun HTMLElement.bElmAdd(block: HTMLElement.() -> Unit) = appendChild((document.createElement("b")).apply(block))
 
-fun HTMLElement.baseElm(block: HTMLBaseElement.() -> Unit) = appendChild((document.createElement("base") as HTMLBaseElement).apply(block))
+fun HTMLElement.baseElmAdd(block: HTMLBaseElement.() -> Unit) = appendChild((document.createElement("base") as HTMLBaseElement).apply(block))
 
-fun HTMLElement.bdiElm(block: HTMLElement.() -> Unit) = appendChild((document.createElement("bdi")).apply(block))
+fun HTMLElement.bdiElmAdd(block: HTMLElement.() -> Unit) = appendChild((document.createElement("bdi")).apply(block))
 
-fun HTMLElement.bdoElm(block: HTMLElement.() -> Unit) = appendChild((document.createElement("bdo")).apply(block))
+fun HTMLElement.bdoElmAdd(block: HTMLElement.() -> Unit) = appendChild((document.createElement("bdo")).apply(block))
 
-fun HTMLElement.blockquoteElm(block: HTMLQuoteElement.() -> Unit) = appendChild((document.createElement("blockquote") as HTMLQuoteElement).apply(block))
+fun HTMLElement.blockquoteElmAdd(block: HTMLQuoteElement.() -> Unit) = appendChild((document.createElement("blockquote") as HTMLQuoteElement).apply(block))
 
-fun HTMLElement.bodyElm(block: HTMLBodyElement.() -> Unit) = appendChild((document.createElement("body") as HTMLBodyElement).apply(block))
+fun HTMLElement.bodyElmAdd(block: HTMLBodyElement.() -> Unit) = appendChild((document.createElement("body") as HTMLBodyElement).apply(block))
 
-fun HTMLElement.brElm(block: HTMLBRElement.() -> Unit) = appendChild((document.createElement("br") as HTMLBRElement).apply(block))
+fun HTMLElement.brElmAdd(block: HTMLBRElement.() -> Unit) = appendChild((document.createElement("br") as HTMLBRElement).apply(block))
 
-fun HTMLElement.buttonElm(block: HTMLButtonElement.() -> Unit) = appendChild((document.createElement("button") as HTMLButtonElement).apply(block))
+fun HTMLElement.buttonElmAdd(block: HTMLButtonElement.() -> Unit) = appendChild((document.createElement("button") as HTMLButtonElement).apply(block))
 
-fun HTMLElement.canvasElm(block: HTMLCanvasElement.() -> Unit) = appendChild((document.createElement("canvas") as HTMLCanvasElement).apply(block))
+fun HTMLElement.canvasElmAdd(block: HTMLCanvasElement.() -> Unit) = appendChild((document.createElement("canvas") as HTMLCanvasElement).apply(block))
 
-fun HTMLElement.captionElm(block: HTMLTableCaptionElement.() -> Unit) = appendChild((document.createElement("caption") as HTMLTableCaptionElement).apply(block))
+fun HTMLElement.captionElmAdd(block: HTMLTableCaptionElement.() -> Unit) = appendChild((document.createElement("caption") as HTMLTableCaptionElement).apply(block))
 
-fun HTMLElement.citeElm(block: HTMLElement.() -> Unit) = appendChild((document.createElement("cite")).apply(block))
+fun HTMLElement.citeElmAdd(block: HTMLElement.() -> Unit) = appendChild((document.createElement("cite")).apply(block))
 
-fun HTMLElement.codeElm(block: HTMLElement.() -> Unit) = appendChild((document.createElement("code")).apply(block))
+fun HTMLElement.codeElmAdd(block: HTMLElement.() -> Unit) = appendChild((document.createElement("code")).apply(block))
 
-fun HTMLElement.colElm(block: HTMLTableColElement.() -> Unit) = appendChild((document.createElement("col") as HTMLTableColElement).apply(block))
+fun HTMLElement.colElmAdd(block: HTMLTableColElement.() -> Unit) = appendChild((document.createElement("col") as HTMLTableColElement).apply(block))
 
-fun HTMLElement.colgroupElm(block: HTMLTableColElement.() -> Unit) = appendChild((document.createElement("colgroup") as HTMLTableColElement).apply(block))
+fun HTMLElement.colgroupElmAdd(block: HTMLTableColElement.() -> Unit) = appendChild((document.createElement("colgroup") as HTMLTableColElement).apply(block))
 
-fun HTMLElement.dataElm(block: HTMLDataElement.() -> Unit) = appendChild((document.createElement("data") as HTMLDataElement).apply(block))
+fun HTMLElement.dataElmAdd(block: HTMLDataElement.() -> Unit) = appendChild((document.createElement("data") as HTMLDataElement).apply(block))
 
-fun HTMLElement.datalistElm(block: HTMLDataListElement.() -> Unit) = appendChild((document.createElement("datalist") as HTMLDataListElement).apply(block))
+fun HTMLElement.datalistElmAdd(block: HTMLDataListElement.() -> Unit) = appendChild((document.createElement("datalist") as HTMLDataListElement).apply(block))
 
-fun HTMLElement.ddElm(block: HTMLElement.() -> Unit) = appendChild((document.createElement("dd")).apply(block))
+fun HTMLElement.ddElmAdd(block: HTMLElement.() -> Unit) = appendChild((document.createElement("dd")).apply(block))
 
-fun HTMLElement.delElm(block: HTMLModElement.() -> Unit) = appendChild((document.createElement("del") as HTMLModElement).apply(block))
+fun HTMLElement.delElmAdd(block: HTMLModElement.() -> Unit) = appendChild((document.createElement("del") as HTMLModElement).apply(block))
 
-fun HTMLElement.detailsElm(block: HTMLDetailsElement.() -> Unit) = appendChild((document.createElement("details") as HTMLDetailsElement).apply(block))
+fun HTMLElement.detailsElmAdd(block: HTMLDetailsElement.() -> Unit) = appendChild((document.createElement("details") as HTMLDetailsElement).apply(block))
 
-fun HTMLElement.dfnElm(block: HTMLElement.() -> Unit) = appendChild((document.createElement("dfn")).apply(block))
+fun HTMLElement.dfnElmAdd(block: HTMLElement.() -> Unit) = appendChild((document.createElement("dfn")).apply(block))
 
-fun HTMLElement.dialogElm(block: HTMLDialogElement.() -> Unit) = appendChild((document.createElement("dialog") as HTMLDialogElement).apply(block))
+fun HTMLElement.dialogElmAdd(block: HTMLDialogElement.() -> Unit) = appendChild((document.createElement("dialog") as HTMLDialogElement).apply(block))
 
-fun HTMLElement.divElm(block: HTMLDivElement.() -> Unit) = appendChild((document.createElement("div") as HTMLDivElement).apply(block))
+fun HTMLElement.divElmAdd(block: HTMLDivElement.() -> Unit) = appendChild((document.createElement("div") as HTMLDivElement).apply(block))
 
-fun HTMLElement.dlElm(block: HTMLDListElement.() -> Unit) = appendChild((document.createElement("dl") as HTMLDListElement).apply(block))
+fun HTMLElement.dlElmAdd(block: HTMLDListElement.() -> Unit) = appendChild((document.createElement("dl") as HTMLDListElement).apply(block))
 
-fun HTMLElement.dtElm(block: HTMLElement.() -> Unit) = appendChild((document.createElement("dt")).apply(block))
+fun HTMLElement.dtElmAdd(block: HTMLElement.() -> Unit) = appendChild((document.createElement("dt")).apply(block))
 
-fun HTMLElement.emElm(block: HTMLElement.() -> Unit) = appendChild((document.createElement("em")).apply(block))
+fun HTMLElement.emElmAdd(block: HTMLElement.() -> Unit) = appendChild((document.createElement("em")).apply(block))
 
-fun HTMLElement.embedElm(block: HTMLEmbedElement.() -> Unit) = appendChild((document.createElement("embed") as HTMLEmbedElement).apply(block))
+fun HTMLElement.embedElmAdd(block: HTMLEmbedElement.() -> Unit) = appendChild((document.createElement("embed") as HTMLEmbedElement).apply(block))
 
-fun HTMLElement.fieldsetElm(block: HTMLFieldSetElement.() -> Unit) = appendChild((document.createElement("fieldset") as HTMLFieldSetElement).apply(block))
+fun HTMLElement.fieldsetElmAdd(block: HTMLFieldSetElement.() -> Unit) = appendChild((document.createElement("fieldset") as HTMLFieldSetElement).apply(block))
 
-fun HTMLElement.figcaptionElm(block: HTMLElement.() -> Unit) = appendChild((document.createElement("figcaption")).apply(block))
+fun HTMLElement.figcaptionElmAdd(block: HTMLElement.() -> Unit) = appendChild((document.createElement("figcaption")).apply(block))
 
-fun HTMLElement.figureElm(block: HTMLElement.() -> Unit) = appendChild((document.createElement("figure")).apply(block))
+fun HTMLElement.figureElmAdd(block: HTMLElement.() -> Unit) = appendChild((document.createElement("figure")).apply(block))
 
-fun HTMLElement.footerElm(block: HTMLElement.() -> Unit) = appendChild((document.createElement("footer")).apply(block))
+fun HTMLElement.footerElmAdd(block: HTMLElement.() -> Unit) = appendChild((document.createElement("footer")).apply(block))
 
-fun HTMLElement.formElm(block: HTMLFormElement.() -> Unit) = appendChild((document.createElement("form") as HTMLFormElement).apply(block))
+fun HTMLElement.formElmAdd(block: HTMLFormElement.() -> Unit) = appendChild((document.createElement("form") as HTMLFormElement).apply(block))
 
-fun HTMLElement.h1Elm(block: HTMLHeadingElement.() -> Unit) = appendChild((document.createElement("h1") as HTMLHeadingElement).apply(block))
+fun HTMLElement.h1ElmAdd(block: HTMLHeadingElement.() -> Unit) = appendChild((document.createElement("h1") as HTMLHeadingElement).apply(block))
 
-fun HTMLElement.h2Elm(block: HTMLHeadingElement.() -> Unit) = appendChild((document.createElement("h2") as HTMLHeadingElement).apply(block))
+fun HTMLElement.h2ElmAdd(block: HTMLHeadingElement.() -> Unit) = appendChild((document.createElement("h2") as HTMLHeadingElement).apply(block))
 
-fun HTMLElement.h3Elm(block: HTMLHeadingElement.() -> Unit) = appendChild((document.createElement("h3") as HTMLHeadingElement).apply(block))
+fun HTMLElement.h3ElmAdd(block: HTMLHeadingElement.() -> Unit) = appendChild((document.createElement("h3") as HTMLHeadingElement).apply(block))
 
-fun HTMLElement.h4Elm(block: HTMLHeadingElement.() -> Unit) = appendChild((document.createElement("h4") as HTMLHeadingElement).apply(block))
+fun HTMLElement.h4ElmAdd(block: HTMLHeadingElement.() -> Unit) = appendChild((document.createElement("h4") as HTMLHeadingElement).apply(block))
 
-fun HTMLElement.h5Elm(block: HTMLHeadingElement.() -> Unit) = appendChild((document.createElement("h5") as HTMLHeadingElement).apply(block))
+fun HTMLElement.h5ElmAdd(block: HTMLHeadingElement.() -> Unit) = appendChild((document.createElement("h5") as HTMLHeadingElement).apply(block))
 
-fun HTMLElement.h6Elm(block: HTMLHeadingElement.() -> Unit) = appendChild((document.createElement("h6") as HTMLHeadingElement).apply(block))
+fun HTMLElement.h6ElmAdd(block: HTMLHeadingElement.() -> Unit) = appendChild((document.createElement("h6") as HTMLHeadingElement).apply(block))
 
-fun HTMLElement.headElm(block: HTMLHeadElement.() -> Unit) = appendChild((document.createElement("head") as HTMLHeadElement).apply(block))
+fun HTMLElement.headElmAdd(block: HTMLHeadElement.() -> Unit) = appendChild((document.createElement("head") as HTMLHeadElement).apply(block))
 
-fun HTMLElement.headerElm(block: HTMLElement.() -> Unit) = appendChild((document.createElement("header")).apply(block))
+fun HTMLElement.headerElmAdd(block: HTMLElement.() -> Unit) = appendChild((document.createElement("header")).apply(block))
 
-fun HTMLElement.hgroupElm(block: HTMLElement.() -> Unit) = appendChild((document.createElement("hgroup")).apply(block))
+fun HTMLElement.hgroupElmAdd(block: HTMLElement.() -> Unit) = appendChild((document.createElement("hgroup")).apply(block))
 
-fun HTMLElement.hrElm(block: HTMLHRElement.() -> Unit) = appendChild((document.createElement("hr") as HTMLHRElement).apply(block))
+fun HTMLElement.hrElmAdd(block: HTMLHRElement.() -> Unit) = appendChild((document.createElement("hr") as HTMLHRElement).apply(block))
 
-fun HTMLElement.htmlElm(block: HTMLHtmlElement.() -> Unit) = appendChild((document.createElement("html") as HTMLHtmlElement).apply(block))
+fun HTMLElement.htmlElmAdd(block: HTMLHtmlElement.() -> Unit) = appendChild((document.createElement("html") as HTMLHtmlElement).apply(block))
 
-fun HTMLElement.iElm(block: HTMLElement.() -> Unit) = appendChild((document.createElement("i")).apply(block))
+fun HTMLElement.iElmAdd(block: HTMLElement.() -> Unit) = appendChild((document.createElement("i")).apply(block))
 
-fun HTMLElement.iframeElm(block: HTMLIFrameElement.() -> Unit) = appendChild((document.createElement("iframe") as HTMLIFrameElement).apply(block))
+fun HTMLElement.iframeElmAdd(block: HTMLIFrameElement.() -> Unit) = appendChild((document.createElement("iframe") as HTMLIFrameElement).apply(block))
 
-fun HTMLElement.imgElm(block: HTMLImageElement.() -> Unit) = appendChild((document.createElement("img") as HTMLImageElement).apply(block))
+fun HTMLElement.imgElmAdd(block: HTMLImageElement.() -> Unit) = appendChild((document.createElement("img") as HTMLImageElement).apply(block))
 
-fun HTMLElement.inputElm(block: HTMLInputElement.() -> Unit) = appendChild((document.createElement("input") as HTMLInputElement).apply(block))
+fun HTMLElement.inputElmAdd(block: HTMLInputElement.() -> Unit) = appendChild((document.createElement("input") as HTMLInputElement).apply(block))
 
-fun HTMLElement.insElm(block: HTMLModElement.() -> Unit) = appendChild((document.createElement("ins") as HTMLModElement).apply(block))
+fun HTMLElement.insElmAdd(block: HTMLModElement.() -> Unit) = appendChild((document.createElement("ins") as HTMLModElement).apply(block))
 
-fun HTMLElement.kbdElm(block: HTMLElement.() -> Unit) = appendChild((document.createElement("kbd")).apply(block))
+fun HTMLElement.kbdElmAdd(block: HTMLElement.() -> Unit) = appendChild((document.createElement("kbd")).apply(block))
 
-fun HTMLElement.labelElm(block: HTMLLabelElement.() -> Unit) = appendChild((document.createElement("label") as HTMLLabelElement).apply(block))
+fun HTMLElement.labelElmAdd(block: HTMLLabelElement.() -> Unit) = appendChild((document.createElement("label") as HTMLLabelElement).apply(block))
 
-fun HTMLElement.legendElm(block: HTMLLegendElement.() -> Unit) = appendChild((document.createElement("legend") as HTMLLegendElement).apply(block))
+fun HTMLElement.legendElmAdd(block: HTMLLegendElement.() -> Unit) = appendChild((document.createElement("legend") as HTMLLegendElement).apply(block))
 
-fun HTMLElement.liElm(block: HTMLLIElement.() -> Unit) = appendChild((document.createElement("li") as HTMLLIElement).apply(block))
+fun HTMLElement.liElmAdd(block: HTMLLIElement.() -> Unit) = appendChild((document.createElement("li") as HTMLLIElement).apply(block))
 
-fun HTMLElement.linkElm(block: HTMLLinkElement.() -> Unit) = appendChild((document.createElement("link") as HTMLLinkElement).apply(block))
+fun HTMLElement.linkElmAdd(block: HTMLLinkElement.() -> Unit) = appendChild((document.createElement("link") as HTMLLinkElement).apply(block))
 
-fun HTMLElement.mainElm(block: HTMLElement.() -> Unit) = appendChild((document.createElement("main")).apply(block))
+fun HTMLElement.mainElmAdd(block: HTMLElement.() -> Unit) = appendChild((document.createElement("main")).apply(block))
 
-fun HTMLElement.mapElm(block: HTMLMapElement.() -> Unit) = appendChild((document.createElement("map") as HTMLMapElement).apply(block))
+fun HTMLElement.mapElmAdd(block: HTMLMapElement.() -> Unit) = appendChild((document.createElement("map") as HTMLMapElement).apply(block))
 
-fun HTMLElement.markElm(block: HTMLElement.() -> Unit) = appendChild((document.createElement("mark")).apply(block))
+fun HTMLElement.markElmAdd(block: HTMLElement.() -> Unit) = appendChild((document.createElement("mark")).apply(block))
 
-fun HTMLElement.menuElm(block: HTMLMenuElement.() -> Unit) = appendChild((document.createElement("menu") as HTMLMenuElement).apply(block))
+fun HTMLElement.menuElmAdd(block: HTMLMenuElement.() -> Unit) = appendChild((document.createElement("menu") as HTMLMenuElement).apply(block))
 
-fun HTMLElement.metaElm(block: HTMLMetaElement.() -> Unit) = appendChild((document.createElement("meta") as HTMLMetaElement).apply(block))
+fun HTMLElement.metaElmAdd(block: HTMLMetaElement.() -> Unit) = appendChild((document.createElement("meta") as HTMLMetaElement).apply(block))
 
-fun HTMLElement.meterElm(block: HTMLMeterElement.() -> Unit) = appendChild((document.createElement("meter") as HTMLMeterElement).apply(block))
+fun HTMLElement.meterElmAdd(block: HTMLMeterElement.() -> Unit) = appendChild((document.createElement("meter") as HTMLMeterElement).apply(block))
 
-fun HTMLElement.navElm(block: HTMLElement.() -> Unit) = appendChild((document.createElement("nav")).apply(block))
+fun HTMLElement.navElmAdd(block: HTMLElement.() -> Unit) = appendChild((document.createElement("nav")).apply(block))
 
-fun HTMLElement.noscriptElm(block: HTMLElement.() -> Unit) = appendChild((document.createElement("noscript")).apply(block))
+fun HTMLElement.noscriptElmAdd(block: HTMLElement.() -> Unit) = appendChild((document.createElement("noscript")).apply(block))
 
-fun HTMLElement.objectElm(block: HTMLObjectElement.() -> Unit) = appendChild((document.createElement("object") as HTMLObjectElement).apply(block))
+fun HTMLElement.objectElmAdd(block: HTMLObjectElement.() -> Unit) = appendChild((document.createElement("object") as HTMLObjectElement).apply(block))
 
-fun HTMLElement.olElm(block: HTMLOListElement.() -> Unit) = appendChild((document.createElement("ol") as HTMLOListElement).apply(block))
+fun HTMLElement.olElmAdd(block: HTMLOListElement.() -> Unit) = appendChild((document.createElement("ol") as HTMLOListElement).apply(block))
 
-fun HTMLElement.optgroupElm(block: HTMLOptGroupElement.() -> Unit) = appendChild((document.createElement("optgroup") as HTMLOptGroupElement).apply(block))
+fun HTMLElement.optgroupElmAdd(block: HTMLOptGroupElement.() -> Unit) = appendChild((document.createElement("optgroup") as HTMLOptGroupElement).apply(block))
 
-fun HTMLElement.optionElm(block: HTMLOptionElement.() -> Unit) = appendChild((document.createElement("option") as HTMLOptionElement).apply(block))
+fun HTMLElement.optionElmAdd(block: HTMLOptionElement.() -> Unit) = appendChild((document.createElement("option") as HTMLOptionElement).apply(block))
 
-fun HTMLElement.outputElm(block: HTMLOutputElement.() -> Unit) = appendChild((document.createElement("output") as HTMLOutputElement).apply(block))
+fun HTMLElement.outputElmAdd(block: HTMLOutputElement.() -> Unit) = appendChild((document.createElement("output") as HTMLOutputElement).apply(block))
 
-fun HTMLElement.pElm(block: HTMLParagraphElement.() -> Unit) = appendChild((document.createElement("p") as HTMLParagraphElement).apply(block))
+fun HTMLElement.pElmAdd(block: HTMLParagraphElement.() -> Unit) = appendChild((document.createElement("p") as HTMLParagraphElement).apply(block))
 
-fun HTMLElement.pictureElm(block: HTMLPictureElement.() -> Unit) = appendChild((document.createElement("picture") as HTMLPictureElement).apply(block))
+fun HTMLElement.pictureElmAdd(block: HTMLPictureElement.() -> Unit) = appendChild((document.createElement("picture") as HTMLPictureElement).apply(block))
 
-fun HTMLElement.preElm(block: HTMLPreElement.() -> Unit) = appendChild((document.createElement("pre") as HTMLPreElement).apply(block))
+fun HTMLElement.preElmAdd(block: HTMLPreElement.() -> Unit) = appendChild((document.createElement("pre") as HTMLPreElement).apply(block))
 
-fun HTMLElement.progressElm(block: HTMLProgressElement.() -> Unit) = appendChild((document.createElement("progress") as HTMLProgressElement).apply(block))
+fun HTMLElement.progressElmAdd(block: HTMLProgressElement.() -> Unit) = appendChild((document.createElement("progress") as HTMLProgressElement).apply(block))
 
-fun HTMLElement.qElm(block: HTMLQuoteElement.() -> Unit) = appendChild((document.createElement("q") as HTMLQuoteElement).apply(block))
+fun HTMLElement.qElmAdd(block: HTMLQuoteElement.() -> Unit) = appendChild((document.createElement("q") as HTMLQuoteElement).apply(block))
 
-fun HTMLElement.rpElm(block: HTMLElement.() -> Unit) = appendChild((document.createElement("rp")).apply(block))
+fun HTMLElement.rpElmAdd(block: HTMLElement.() -> Unit) = appendChild((document.createElement("rp")).apply(block))
 
-fun HTMLElement.rtElm(block: HTMLElement.() -> Unit) = appendChild((document.createElement("rt")).apply(block))
+fun HTMLElement.rtElmAdd(block: HTMLElement.() -> Unit) = appendChild((document.createElement("rt")).apply(block))
 
-fun HTMLElement.rubyElm(block: HTMLElement.() -> Unit) = appendChild((document.createElement("ruby")).apply(block))
+fun HTMLElement.rubyElmAdd(block: HTMLElement.() -> Unit) = appendChild((document.createElement("ruby")).apply(block))
 
-fun HTMLElement.sElm(block: HTMLElement.() -> Unit) = appendChild((document.createElement("s")).apply(block))
+fun HTMLElement.sElmAdd(block: HTMLElement.() -> Unit) = appendChild((document.createElement("s")).apply(block))
 
-fun HTMLElement.sampElm(block: HTMLElement.() -> Unit) = appendChild((document.createElement("samp")).apply(block))
+fun HTMLElement.sampElmAdd(block: HTMLElement.() -> Unit) = appendChild((document.createElement("samp")).apply(block))
 
-fun HTMLElement.scriptElm(block: HTMLScriptElement.() -> Unit) = appendChild((document.createElement("script") as HTMLScriptElement).apply(block))
+fun HTMLElement.scriptElmAdd(block: HTMLScriptElement.() -> Unit) = appendChild((document.createElement("script") as HTMLScriptElement).apply(block))
 
-fun HTMLElement.sectionElm(block: HTMLElement.() -> Unit) = appendChild((document.createElement("section")).apply(block))
+fun HTMLElement.sectionElmAdd(block: HTMLElement.() -> Unit) = appendChild((document.createElement("section")).apply(block))
 
-fun HTMLElement.selectElm(block: HTMLSelectElement.() -> Unit) = appendChild((document.createElement("select") as HTMLSelectElement).apply(block))
+fun HTMLElement.selectElmAdd(block: HTMLSelectElement.() -> Unit) = appendChild((document.createElement("select") as HTMLSelectElement).apply(block))
 
-fun HTMLElement.slotElm(block: HTMLSlotElement.() -> Unit) = appendChild((document.createElement("slot") as HTMLSlotElement).apply(block))
+fun HTMLElement.slotElmAdd(block: HTMLSlotElement.() -> Unit) = appendChild((document.createElement("slot") as HTMLSlotElement).apply(block))
 
-fun HTMLElement.smallElm(block: HTMLElement.() -> Unit) = appendChild((document.createElement("small")).apply(block))
+fun HTMLElement.smallElmAdd(block: HTMLElement.() -> Unit) = appendChild((document.createElement("small")).apply(block))
 
-fun HTMLElement.sourceElm(block: HTMLSourceElement.() -> Unit) = appendChild((document.createElement("source") as HTMLSourceElement).apply(block))
+fun HTMLElement.sourceElmAdd(block: HTMLSourceElement.() -> Unit) = appendChild((document.createElement("source") as HTMLSourceElement).apply(block))
 
-fun HTMLElement.spanElm(block: HTMLSpanElement.() -> Unit) = appendChild((document.createElement("span") as HTMLSpanElement).apply(block))
+fun HTMLElement.spanElmAdd(block: HTMLSpanElement.() -> Unit) = appendChild((document.createElement("span") as HTMLSpanElement).apply(block))
 
-fun HTMLElement.strongElm(block: HTMLElement.() -> Unit) = appendChild((document.createElement("strong")).apply(block))
+fun HTMLElement.strongElmAdd(block: HTMLElement.() -> Unit) = appendChild((document.createElement("strong")).apply(block))
 
-fun HTMLElement.styleElm(block: HTMLStyleElement.() -> Unit) = appendChild((document.createElement("style") as HTMLStyleElement).apply(block))
+fun HTMLElement.styleElmAdd(block: HTMLStyleElement.() -> Unit) = appendChild((document.createElement("style") as HTMLStyleElement).apply(block))
 
-fun HTMLElement.subElm(block: HTMLElement.() -> Unit) = appendChild((document.createElement("sub")).apply(block))
+fun HTMLElement.subElmAdd(block: HTMLElement.() -> Unit) = appendChild((document.createElement("sub")).apply(block))
 
-fun HTMLElement.summaryElm(block: HTMLElement.() -> Unit) = appendChild((document.createElement("summary")).apply(block))
+fun HTMLElement.summaryElmAdd(block: HTMLElement.() -> Unit) = appendChild((document.createElement("summary")).apply(block))
 
-fun HTMLElement.supElm(block: HTMLElement.() -> Unit) = appendChild((document.createElement("sup")).apply(block))
+fun HTMLElement.supElmAdd(block: HTMLElement.() -> Unit) = appendChild((document.createElement("sup")).apply(block))
 
-fun HTMLElement.tableElm(block: HTMLTableElement.() -> Unit) = appendChild((document.createElement("table") as HTMLTableElement).apply(block))
+fun HTMLElement.tableElmAdd(block: HTMLTableElement.() -> Unit) = appendChild((document.createElement("table") as HTMLTableElement).apply(block))
 
-fun HTMLElement.tbodyElm(block: HTMLTableSectionElement.() -> Unit) = appendChild((document.createElement("tbody") as HTMLTableSectionElement).apply(block))
+fun HTMLElement.tbodyElmAdd(block: HTMLTableSectionElement.() -> Unit) = appendChild((document.createElement("tbody") as HTMLTableSectionElement).apply(block))
 
-fun HTMLElement.tdElm(block: HTMLTableCellElement.() -> Unit) = appendChild((document.createElement("td") as HTMLTableCellElement).apply(block))
+fun HTMLElement.tdElmAdd(block: HTMLTableCellElement.() -> Unit) = appendChild((document.createElement("td") as HTMLTableCellElement).apply(block))
 
-fun HTMLElement.templateElm(block: HTMLTemplateElement.() -> Unit) = appendChild((document.createElement("template") as HTMLTemplateElement).apply(block))
+fun HTMLElement.templateElmAdd(block: HTMLTemplateElement.() -> Unit) = appendChild((document.createElement("template") as HTMLTemplateElement).apply(block))
 
-fun HTMLElement.textareaElm(block: HTMLTextAreaElement.() -> Unit) = appendChild((document.createElement("textarea") as HTMLTextAreaElement).apply(block))
+fun HTMLElement.textareaElmAdd(block: HTMLTextAreaElement.() -> Unit) = appendChild((document.createElement("textarea") as HTMLTextAreaElement).apply(block))
 
-fun HTMLElement.tfootElm(block: HTMLTableSectionElement.() -> Unit) = appendChild((document.createElement("tfoot") as HTMLTableSectionElement).apply(block))
+fun HTMLElement.tfootElmAdd(block: HTMLTableSectionElement.() -> Unit) = appendChild((document.createElement("tfoot") as HTMLTableSectionElement).apply(block))
 
-fun HTMLElement.thElm(block: HTMLTableCellElement.() -> Unit) = appendChild((document.createElement("th") as HTMLTableCellElement).apply(block))
+fun HTMLElement.thElmAdd(block: HTMLTableCellElement.() -> Unit) = appendChild((document.createElement("th") as HTMLTableCellElement).apply(block))
 
-fun HTMLElement.theadElm(block: HTMLTableSectionElement.() -> Unit) = appendChild((document.createElement("thead") as HTMLTableSectionElement).apply(block))
+fun HTMLElement.theadElmAdd(block: HTMLTableSectionElement.() -> Unit) = appendChild((document.createElement("thead") as HTMLTableSectionElement).apply(block))
 
-fun HTMLElement.timeElm(block: HTMLTimeElement.() -> Unit) = appendChild((document.createElement("time") as HTMLTimeElement).apply(block))
+fun HTMLElement.timeElmAdd(block: HTMLTimeElement.() -> Unit) = appendChild((document.createElement("time") as HTMLTimeElement).apply(block))
 
-fun HTMLElement.titleElm(block: HTMLTitleElement.() -> Unit) = appendChild((document.createElement("title") as HTMLTitleElement).apply(block))
+fun HTMLElement.titleElmAdd(block: HTMLTitleElement.() -> Unit) = appendChild((document.createElement("title") as HTMLTitleElement).apply(block))
 
-fun HTMLElement.trElm(block: HTMLTableRowElement.() -> Unit) = appendChild((document.createElement("tr") as HTMLTableRowElement).apply(block))
+fun HTMLElement.trElmAdd(block: HTMLTableRowElement.() -> Unit) = appendChild((document.createElement("tr") as HTMLTableRowElement).apply(block))
 
-fun HTMLElement.trackElm(block: HTMLTrackElement.() -> Unit) = appendChild((document.createElement("track") as HTMLTrackElement).apply(block))
+fun HTMLElement.trackElmAdd(block: HTMLTrackElement.() -> Unit) = appendChild((document.createElement("track") as HTMLTrackElement).apply(block))
 
-fun HTMLElement.uElm(block: HTMLElement.() -> Unit) = appendChild((document.createElement("u")).apply(block))
+fun HTMLElement.uElmAdd(block: HTMLElement.() -> Unit) = appendChild((document.createElement("u")).apply(block))
 
-fun HTMLElement.ulElm(block: HTMLUListElement.() -> Unit) = appendChild((document.createElement("ul") as HTMLUListElement).apply(block))
+fun HTMLElement.ulElmAdd(block: HTMLUListElement.() -> Unit) = appendChild((document.createElement("ul") as HTMLUListElement).apply(block))
 
-fun HTMLElement.varElm(block: HTMLElement.() -> Unit) = appendChild((document.createElement("var")).apply(block))
+fun HTMLElement.varElmAdd(block: HTMLElement.() -> Unit) = appendChild((document.createElement("var")).apply(block))
 
-fun HTMLElement.videoElm(block: HTMLVideoElement.() -> Unit) = appendChild((document.createElement("video") as HTMLVideoElement).apply(block))
+fun HTMLElement.videoElmAdd(block: HTMLVideoElement.() -> Unit) = appendChild((document.createElement("video") as HTMLVideoElement).apply(block))
 
-fun HTMLElement.wbrElm(block: HTMLElement.() -> Unit) = appendChild((document.createElement("wbr")).apply(block))
+fun HTMLElement.wbrElmAdd(block: HTMLElement.() -> Unit) = appendChild((document.createElement("wbr")).apply(block))
+
+
+
+fun HTMLElement.clazz(name: String) = classList.add(ClassName(name))
