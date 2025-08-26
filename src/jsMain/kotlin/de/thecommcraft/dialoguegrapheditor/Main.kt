@@ -417,7 +417,7 @@ object GraphEditor {
                     editorDiv.style.filter = "none"
                     this@openOverlayAdd.run {
                         style.display = "none"
-                        childNodes.forEach {
+                        childNodes.asList().forEach {
                             it.remove()
                         }
                     }
@@ -434,7 +434,7 @@ object GraphEditor {
                 editorDiv.style.filter = "none"
                 this@openOverlayAdd.run {
                     style.display = "none"
-                    childNodes.forEach {
+                    childNodes.asList().forEach {
                         it.remove()
                     }
                 }
