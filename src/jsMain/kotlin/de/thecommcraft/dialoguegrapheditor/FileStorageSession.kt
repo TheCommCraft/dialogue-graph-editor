@@ -23,6 +23,7 @@ external class FileContent {
 
 interface FileStorageSession {
     val pushControlSession: FileStoragePushControlSession?
+    fun changeTarget(newFileTarget: String)
     suspend fun rename(newFileTarget: String)
     suspend fun write(data: String)
     suspend fun read(): String
@@ -62,6 +63,11 @@ class HTTPFileStorageSession(
 ) : FileStorageSession {
     val currentFileTarget: String by ::fileTarget
     private var previousData = ""
+
+    override fun changeTarget(newFileTarget: String) {
+        fileTarget = newFileTarget
+        previousData = ""
+    }
 
     override suspend fun rename(newFileTarget: String) {
         val currentData = read()
@@ -175,6 +181,11 @@ class WSFileStorageSession(
     private var dataReception = Channel<WSFileStorageSessionMessage>()
     private var previousData = ""
     private var executingCommands = Mutex()
+
+    override fun changeTarget(newFileTarget: String) {
+        fileTarget = newFileTarget
+        previousData = ""
+    }
 
     override suspend fun rename(newFileTarget: String) {
         val currentData = read()

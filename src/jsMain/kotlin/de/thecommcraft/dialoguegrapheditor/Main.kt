@@ -394,6 +394,7 @@ object GraphEditor {
     fun renameCurrent(newName: String) {
         localStorage.removeItem(sessionIdentifier)
         sessionIdentifier = newName
+        localStorage.setItem(sessionIdentifier, btoa(graphDataEncoded))
         fileStorageSession?.let { fileStorageSession ->
             async { ->
                 fileStorageSession.rename(sessionIdentifier)
@@ -407,6 +408,11 @@ object GraphEditor {
             if (newName == "") return@let
             renameCurrent("dgetool-project-$it")
         }
+    }
+
+    fun changeTarget(newName: String) {
+        sessionIdentifier = newName
+        fileStorageSession?.changeTarget(newName)
     }
 
     fun<T> HTMLElement.openOverlayAdd(options: List<T>, clickHandler: (T?) -> Unit) {
@@ -464,7 +470,8 @@ object GraphEditor {
                 saveData()
                 renameCurrent("old-$sessionIdentifier")
                 graphDataEncoded = atob(it)
-                sessionIdentifier = name
+                changeTarget(name)
+                saveData()
                 renameCurrent(sessionIdentifier.removePrefix("old-"))
             }
         }
