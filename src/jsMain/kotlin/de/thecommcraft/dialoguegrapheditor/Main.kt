@@ -391,17 +391,21 @@ object GraphEditor {
         regenSvg()
     }
 
+    fun renameCurrent(newName: String) {
+        localStorage.removeItem(sessionIdentifier)
+        sessionIdentifier = newName
+        fileStorageSession?.let { fileStorageSession ->
+            async { ->
+                fileStorageSession.rename(sessionIdentifier)
+            }()
+        }
+    }
+
     fun askRename() {
         val newName = prompt("Enter the new name (or leave blank to not rename).")
         newName?.let {
             if (newName == "") return@let
-            localStorage.removeItem(sessionIdentifier)
-            sessionIdentifier = "dgetool-project-$it"
-            fileStorageSession?.let { fileStorageSession ->
-                async { ->
-                    fileStorageSession.rename(sessionIdentifier)
-                }()
-            }
+            renameCurrent("dgetool-project-$it")
         }
     }
 
@@ -457,9 +461,11 @@ object GraphEditor {
         overlayDiv.openOverlayAdd(openable) { name ->
             if (name == null) return@openOverlayAdd
             localStorage.getItem(name)?.let {
-                localStorage.setItem(sessionIdentifier, graphDataEncoded)
+                saveData()
+                renameCurrent("old-$sessionIdentifier")
                 graphDataEncoded = it
                 sessionIdentifier = name
+                renameCurrent(sessionIdentifier.removePrefix("old-"))
             }
         }
     }
