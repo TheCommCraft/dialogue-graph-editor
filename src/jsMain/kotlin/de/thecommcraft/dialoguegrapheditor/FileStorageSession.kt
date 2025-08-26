@@ -4,9 +4,11 @@ import js.errors.SyntaxError
 import js.objects.unsafeJso
 import js.uri.encodeURIComponent
 import js.function.async
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withTimeout
 import web.events.addHandler
 import web.sockets.WebSocket
 import web.http.*
@@ -16,6 +18,8 @@ import web.url.URLSearchParams
 import seskar.js.JsValue
 import web.crypto.crypto
 import web.sockets.messageEvent
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 external class FileContent {
     var content: String
@@ -166,6 +170,86 @@ external class WSFileStorageSessionMessage {
     var timestamp: Double
 }
 
+object WSTimeout
+
+class MyResult<A, B>(val result: A?, val problem: B? = null) {
+    companion object {
+        inline fun<reified T: Throwable, A> tryCatch(block: () -> A): MyResult<A, T> {
+            return try {
+                MyResult(block())
+            } catch (exc: Throwable) {
+                if (exc is T) MyResult(null, exc)
+                else throw exc
+            }
+        }
+    }
+
+    fun<C> ifSuccess(block: (A?) -> C?): MyResult<C, B> {
+        if (problem != null) return MyResult(null, problem)
+        return MyResult(block(result), null)
+    }
+
+    suspend fun<C> ifSuccessSuspend(block: suspend (A?) -> C?): MyResult<C, B> {
+        if (problem != null) return MyResult(null, problem)
+        return MyResult(block(result), null)
+    }
+
+    fun<C> ifNonNullSuccess(block: (A) -> C): MyResult<C, B> = ifSuccess {
+        it?.let(block)
+    }
+
+    suspend fun<C> ifNonNullSuccessSuspend(block: suspend (A) -> C): MyResult<C, B> = ifSuccessSuspend {
+        if (it == null) return@ifSuccessSuspend null
+        block(it)
+    }
+
+    fun handle(block: (B) -> A?): MyResult<A, B> {
+        if (problem == null) return MyResult(result, null)
+        return MyResult(block(problem), null)
+    }
+
+    suspend fun handleSuspend(block: suspend (B) -> A?): MyResult<A, B> {
+        if (problem == null) return MyResult(result, null)
+        return MyResult(block(problem), null)
+    }
+
+    fun handle(block: (B) -> MyResult<A, B>): MyResult<A, B> {
+        if (problem == null) return MyResult(result, null)
+        return block(problem)
+    }
+
+    suspend fun handleSuspend(block: suspend (B) -> MyResult<A, B>): MyResult<A, B> {
+        if (problem == null) return MyResult(result, null)
+        return block(problem)
+    }
+
+    fun handleNotNull(block: (B) -> A?): MyResult<A, B> {
+        val resolved = handle(block)
+        resolved.result?.let {
+            return resolved
+        }
+        return this
+    }
+
+    suspend fun handleNotNullSuspend(block: suspend (B) -> A?): MyResult<A, B> {
+        val resolved = handleSuspend(block)
+        resolved.result?.let {
+            return resolved
+        }
+        return this
+    }
+
+    fun<C> ifProblem(block: (B) -> C): MyResult<A, C> {
+        if (problem == null) return MyResult(result, null)
+        return MyResult(null, block(problem))
+    }
+
+    suspend fun<C> ifProblemSuspend(block: suspend (B) -> C): MyResult<A, C> {
+        if (problem == null) return MyResult(result, null)
+        return MyResult(null, block(problem))
+    }
+}
+
 class WSFileStorageSession(
     serverBaseUrl: URL,
     private var fileTarget: String,
@@ -201,12 +285,13 @@ class WSFileStorageSession(
                 fileTarget = this@WSFileStorageSession.fileTarget
                 content = currentData
             })
-        })
+        })[1].ifProblemSuspend {
+            write(currentData)
+            null
+        }
     }
 
-    override suspend fun write(data: String) {
-        if (data == previousData) return
-        previousData = data
+    private fun makeTryWrite(data: String): suspend (WSTimeout?) -> MyResult<WSFileStorageSessionMessage, WSTimeout> = {
         executeCommand {
             commandType = WSFileStorageSessionCommandType.WRITE
             fileTarget = this@WSFileStorageSession.fileTarget
@@ -214,12 +299,27 @@ class WSFileStorageSession(
         }
     }
 
+    override suspend fun write(data: String) {
+        if (data == previousData) return
+        previousData = data
+        val tryWrite = makeTryWrite(data)
+        tryWrite(null)
+            .handleSuspend(tryWrite)
+            .handleSuspend(tryWrite)
+            .handleSuspend(tryWrite)
+    }
+
+    private suspend fun tryRead(problem: WSTimeout? = null): MyResult<WSFileStorageSessionMessage, WSTimeout> = executeCommand {
+        commandType = WSFileStorageSessionCommandType.READ
+        fileTarget = this@WSFileStorageSession.fileTarget
+    }
+
     override suspend fun read(): String {
-        val response = executeCommand {
-            commandType = WSFileStorageSessionCommandType.READ
-            fileTarget = this@WSFileStorageSession.fileTarget
-        }
-        return response.content ?: ""
+        val response = tryRead()
+            .handleSuspend(::tryRead)
+            .handleSuspend(::tryRead)
+            .handleSuspend(::tryRead)
+        return response.result?.content ?: ""
     }
 
     private suspend fun receiveFiltered(filter: WSFileStorageSessionMessage.() -> Boolean): WSFileStorageSessionMessage {
@@ -229,42 +329,55 @@ class WSFileStorageSession(
         }
     }
 
-    private suspend fun executeCommand(commandBuilder: WSFileStorageSessionCommand.() -> Unit): WSFileStorageSessionMessage {
+    private suspend fun executeCommand(
+        timeout: Duration = 5.seconds,
+        commandBuilder: WSFileStorageSessionCommand.() -> Unit
+    ): MyResult<WSFileStorageSessionMessage, WSTimeout> {
         val command = unsafeJso<WSFileStorageSessionCommand> {
             identifier = crypto.randomUUID()
             commandBuilder()
         }
         val encodedCommand = JSON.stringify(command)+"\n"
-        executingCommands.withLock {
-            webSocket.send(encodedCommand)
-            return receiveFiltered { messageType == WSFileStorageSessionMessageType.RESPONSE && identifier == command.identifier }
-        }
+        return MyResult.tryCatch<TimeoutCancellationException, WSFileStorageSessionMessage> {
+            withTimeout(timeout) {
+                executingCommands.withLock {
+                    webSocket.send(encodedCommand)
+                    receiveFiltered { messageType == WSFileStorageSessionMessageType.RESPONSE && identifier == command.identifier }
+                }
+            }
+        }.ifProblemSuspend { WSTimeout }
     }
 
-    private suspend fun executeBatchedCommands(amount: Int, commandBuilder: WSFileStorageSessionCommand.(Int) -> Unit): List<WSFileStorageSessionMessage> {
+    private suspend fun executeBatchedCommands(amount: Int, timeout: Duration = 10.seconds, commandBuilder: WSFileStorageSessionCommand.(Int) -> Unit): List<MyResult<WSFileStorageSessionMessage, WSTimeout>> {
         return executeBatchedCommands(sequence {
             (0..<amount).forEach { idx -> yield(unsafeJso { commandBuilder(idx) }) }
-        })
+        }, timeout)
     }
 
-    private suspend fun executeBatchedCommands(commands: Sequence<WSFileStorageSessionCommand>): List<WSFileStorageSessionMessage> {
+    private suspend fun executeBatchedCommands(commands: Sequence<WSFileStorageSessionCommand>, timeout: Duration = 10.seconds): List<MyResult<WSFileStorageSessionMessage, WSTimeout>> {
         val commandList = commands.toList().apply {
             forEach {
                 it.identifier = crypto.randomUUID()
             }
         }
-        val responseMap = commands.map { it.identifier to unsafeJso<WSFileStorageSessionMessage>() }.toMap().toMutableMap()
+        val responseMap: MutableMap<String, WSFileStorageSessionMessage?> = commands.map { it.identifier to null }.toMap().toMutableMap()
         val encodedCommands = commandList.joinToString("\n", transform = JSON::stringify)+"\n"
         executingCommands.withLock {
             webSocket.send(encodedCommands)
-            repeat(commandList.size) {
-                val msg = receiveFiltered { messageType == WSFileStorageSessionMessageType.RESPONSE }
-                if (msg.identifier !in responseMap) return@repeat
-                msg.identifier?.let {
-                    responseMap[it] = msg
+            try {
+                withTimeout(timeout) {
+                    repeat(commandList.size) {
+                        val msg = receiveFiltered { messageType == WSFileStorageSessionMessageType.RESPONSE }
+                        if (msg.identifier !in responseMap) return@repeat
+                        msg.identifier?.let {
+                            responseMap[it] = msg
+                        }
+                    }
                 }
+            } catch (_: TimeoutCancellationException) { }
+            return responseMap.values.map {
+                it?.let(::MyResult) ?: MyResult(null, WSTimeout)
             }
-            return responseMap.values.toList()
         }
     }
 
